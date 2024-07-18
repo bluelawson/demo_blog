@@ -12,7 +12,7 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
     <article className="shadow my-4 flex flex-col" key={article.id}>
       <Link href={`articles/${article.id}`} className="hover:opacity-75">
         <Image
-          src={`https://source.unsplash.com/collection/1346951/1000x500?sig=${article.id}`}
+          src={`https://source.unsplash.com/collection/1346951/1000x500?sig=1`}
           alt=""
           width={1280}
           height={300}
