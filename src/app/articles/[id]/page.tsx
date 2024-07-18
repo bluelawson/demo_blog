@@ -20,8 +20,8 @@ const Article = async ({ params }: { params: { id: string } }) => {
       <Image
         src={`/sample/articleImage.jpg`}
         alt="no image"
-        width={1280}
-        height={300}
+        width={128}
+        height={30}
       />
       <h1 className="text-4xl text-center mb-10 mt-10">
         {detailArticle.title}
