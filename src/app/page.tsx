@@ -1,7 +1,4 @@
-import Image from "next/image";
 import ArticleList from "./components/ArticleList";
-import { getAllArticles } from "@/blogAPI";
-import { supabase } from "@/utils/supabaseClient";
 
 export default async function Home() {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;

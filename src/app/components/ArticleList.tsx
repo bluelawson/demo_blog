@@ -1,5 +1,3 @@
-import Link from "next/link";
-import Image from "next/image";
 import React from "react";
 import { Article } from "@/types";
 import ArticleCard from "./ArticleCard";
@@ -9,7 +7,6 @@ type ArticleListProps = {
 };
 
 const ArticleList = ({ articles }: ArticleListProps) => {
-
   return (
     <div>
       {articles.map((article) => (

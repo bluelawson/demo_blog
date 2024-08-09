@@ -1,5 +1,4 @@
 import { supabase } from "@/utils/supabaseClient";
-import { NextApiRequest, NextApiResponse } from "next";
 import { notFound } from "next/navigation";
 import { NextResponse } from "next/server";
 
