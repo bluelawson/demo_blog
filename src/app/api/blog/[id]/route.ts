@@ -1,5 +1,4 @@
 import { supabase } from "@/utils/supabaseClient";
-import { notFound } from "next/navigation";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request, res: Response) {
@@ -13,10 +12,6 @@ export async function GET(req: Request, res: Response) {
 
   if (error) {
     return NextResponse.json(error);
-  }
-
-  if (!data) {
-    notFound();
   }
 
   return NextResponse.json(data, { status: 200 });
