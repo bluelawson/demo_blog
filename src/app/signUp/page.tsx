@@ -3,17 +3,19 @@ import React, { useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/navigation";
 
-const Login = () => {
+const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
+  const handleSignUp = async () => {
+    const { error } = await supabase.auth.signUp({
       email: email,
       password: password,
     });
     if (!error) {
       router.push("/");
+    } else {
+      console.log(error);
     }
   };
 
@@ -45,15 +47,14 @@ const Login = () => {
       </div>
       <div>
         <button
-          type="button"
           className="px-3 mx-3 bg-orange-300 rounded-md"
-          onClick={handleLogin}
+          onClick={handleSignUp}
         >
-          Log in
+          Sign Up
         </button>
       </div>
     </>
   );
 };
 
-export default Login;
+export default SignUp;

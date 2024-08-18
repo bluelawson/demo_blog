@@ -1,20 +1,40 @@
 "use client";
-import React, { useState } from "react";
-import { supabase } from "@/utils/supabaseClient";
+import React, { useEffect, useState } from "react";
+import { supabase, adminSupabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/navigation";
 
-const Login = () => {
+const MyPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
-    if (!error) {
-      router.push("/");
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
+  const handleDelete = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      const { error } = await adminSupabase.auth.admin.deleteUser(user?.id);
+      if (!error) {
+        router.push("/");
+      } else {
+        console.log(error);
+      }
     }
+  };
+  const getUserData = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      setEmail(user.email ?? "");
+    } else {
+      setEmail("");
+    }
+    return user;
   };
 
   return (
@@ -45,15 +65,14 @@ const Login = () => {
       </div>
       <div>
         <button
-          type="button"
           className="px-3 mx-3 bg-orange-300 rounded-md"
-          onClick={handleLogin}
+          onClick={handleDelete}
         >
-          Log in
+          アカウント削除
         </button>
       </div>
     </>
   );
 };
 
-export default Login;
+export default MyPage;
