@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
+  const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
   const handleSignUp = async () => {
     const { error } = await supabase.auth.signUp({
       email: email,
       password: password,
+      options: { data: { user_name: userName } },
     });
     if (!error) {
       router.push("/");
@@ -30,6 +32,18 @@ const SignUp = () => {
           value={email}
           className="text-black"
           onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <label htmlFor="userName">ユーザ名:</label>
+        <input
+          id="userName"
+          name="userName"
+          type="userName"
+          value={userName}
+          className="text-black"
+          onChange={(e) => setUserName(e.target.value)}
           required
         />
       </div>

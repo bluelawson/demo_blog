@@ -42,7 +42,7 @@ const Header = () => {
       <div>
         <nav className="text-sm font-medium">
           <Link href="/" className="bg-white-300 px-3 py-3 rounded-md">
-            {user ? `こんにちは、${user?.email} さん` : null}
+            {user ? `こんにちは、${user?.user_metadata.user_name} さん` : null}
           </Link>
           {!user ? (
             <>
