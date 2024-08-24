@@ -48,14 +48,16 @@ const Header = () => {
             <>
               <Link
                 href="/login"
-                className="bg-orange-300 px-3 mx-3 py-3 rounded-md"
+                className="bg-orange-400 font-bold px-3 mx-3 py-3 rounded-lg"
               >
+                <span className="i-tabler-key mr-3 relative top-[1px] scale-150"></span>
                 ログイン
               </Link>
               <Link
                 href="/signUp"
-                className="bg-orange-300 px-3 mx-3 py-3 rounded-md"
+                className="bg-orange-400 font-bold px-3 mx-3 py-3 rounded-lg"
               >
+                <span className="i-tabler-user-plus mr-3 relative top-[1px] scale-150"></span>
                 新規登録
               </Link>
             </>
@@ -64,21 +66,24 @@ const Header = () => {
             <>
               <Link
                 href="/myPage"
-                className="bg-orange-300 px-3 mx-3 py-3 rounded-md"
+                className="bg-orange-400 font-bold px-3 mx-3 py-3 rounded-lg"
               >
-                マイページ
+                <span className="i-tabler-settings mr-3 relative top-[1px] scale-150"></span>
+                アカウント設定
               </Link>
               <button
                 onClick={handleLogout}
-                className="bg-orange-300 px-3 mx-3 py-3 rounded-md"
+                className="bg-orange-400 font-bold px-3 mx-3 py-3 rounded-lg"
               >
+                <span className="i-tabler-lock mr-3 relative top-[1px] scale-150"></span>
                 ログアウト
               </button>
               <Link
                 href="/articles/new"
-                className="bg-orange-300 px-3 mx-3 py-3 rounded-md"
+                className="bg-orange-400 font-bold px-3 mx-3 py-3 rounded-lg"
               >
-                記事を書く
+                <span className="i-tabler-edit mr-3 relative top-[1px] scale-150"></span>
+                記事投稿
               </Link>
             </>
           ) : null}
