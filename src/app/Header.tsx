@@ -90,7 +90,7 @@ const Header = () => {
                 記事管理
               </Link>
               <Link
-                href="/articles/new"
+                href="/management/articles/new"
                 className="bg-sky-500 font-bold px-3 mx-3 py-2 rounded-lg"
               >
                 <span className="i-tabler-edit mr-2 relative top-[1px] scale-150"></span>

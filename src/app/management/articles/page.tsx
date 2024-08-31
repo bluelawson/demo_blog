@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/navigation";
-import ArticleList from "../../components/ArticleList";
+import ManagedArticleList from "../../components/ManagedArticleList";
 
 const ArticleManagement = async () => {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -18,7 +18,7 @@ const ArticleManagement = async () => {
   return (
     <div className="md:flex">
       <section className="w-full md:w-2/3 flex flex-col items-center">
-        <ArticleList articles={articles} />
+        <ManagedArticleList articles={articles} />
       </section>
     </div>
   );
