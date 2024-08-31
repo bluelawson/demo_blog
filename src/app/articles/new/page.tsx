@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { supabase } from "@/utils/supabaseClient";
 
 const CreateBlogPage = () => {
   const router = useRouter();
@@ -13,12 +14,16 @@ const CreateBlogPage = () => {
     e.preventDefault();
     setLoading(true);
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    const userId = user?.id;
     await fetch(`${API_URL}/api/blog`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id, title, content }),
+      body: JSON.stringify({ id, title, content, userId }),
     });
 
     setLoading(false);
