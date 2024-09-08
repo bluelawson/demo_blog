@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import { Article } from "@/types";
 import ManagedArticleCard from "./ManagedArticleCard";
 
@@ -7,12 +8,31 @@ type ManagedArticleListProps = {
 };
 
 const ManagedArticleList = ({ articles }: ManagedArticleListProps) => {
+  const [selectedArticles, setSelectedArticles] = useState<string[]>([]);
+
+  const handleSelectArticle = (id: string) => {
+    setSelectedArticles((prevSelectedItems) =>
+      prevSelectedItems.includes(id)
+        ? prevSelectedItems.filter((itemId) => itemId !== id)
+        : [...prevSelectedItems, id]
+    );
+  };
+
   return (
-    <div>
+    <>
+      <div>{selectedArticles.join(", ")}</div>
       {articles.map((article) => (
-        <ManagedArticleCard article={article} key={article.id} />
+        <React.Fragment key={article.id}>
+          <div>
+            <input
+              type="checkbox"
+              onChange={() => handleSelectArticle(article.id)}
+            />
+            <ManagedArticleCard article={article} />
+          </div>
+        </React.Fragment>
       ))}
-    </div>
+    </>
   );
 };
 

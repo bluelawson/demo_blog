@@ -9,19 +9,8 @@ type ManagedArticleCardProps = {
 
 const ManagedArticleCard = ({ article }: ManagedArticleCardProps) => {
   return (
-    <article className="shadow my-4 flex flex-col" key={article.id}>
-      <Link href={`articles/${article.id}`} className="hover:opacity-75">
-        <Image
-          src={`/sample/articleImage.jpg`}
-          alt="no image"
-          width={1280}
-          height={300}
-        />
-      </Link>
+    <article className="shadow my-4 flex flex-col">
       <div className="bg-white flex flex-col justify-start p-6">
-        <Link href="#" className="text-blue-700 pb-4 font-bold">
-          Technology
-        </Link>
         <Link
           href={`articles/${article.id}`}
           className="text-slate-900 text-3xl font-bold hover:text-gray-700 pb-4"
