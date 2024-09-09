@@ -69,7 +69,7 @@ const Header = () => {
           {user ? (
             <>
               <Link
-                href="/myPage"
+                href="/management/myPage"
                 className="text-xs px-2 mx-1 py-2 rounded-lg hover:bg-sky-700"
               >
                 <span className="i-tabler-settings mr-2 relative top-[1px] scale-150"></span>
