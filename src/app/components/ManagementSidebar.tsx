@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type Menu = {
   id: number;
@@ -9,17 +10,19 @@ type Menu = {
 };
 
 const ManagementSidebar = () => {
-  const [selectedMenuId, setSelectedMenuId] = useState<number>(2);
   const sidebarMenus: Menu[] = [
     { id: 1, name: "ホーム", link: "/management" },
     { id: 2, name: "記事一覧", link: "/management/articles" },
     { id: 3, name: "アカウント設定", link: "/management/myPage" },
     { id: 4, name: "アクセス解析", link: "#" },
   ];
+  const pathname = usePathname();
 
-  const handleMenuSelect = async (menuId: number) => {
-    setSelectedMenuId(menuId);
-  };
+  const [currentPagePath, setCurrentPagePath] = useState<string>("");
+
+  useEffect(() => {
+    setCurrentPagePath(pathname);
+  }, [pathname]);
 
   return (
     <div className="h-[80%] bg-slate-600">
@@ -29,9 +32,8 @@ const ManagementSidebar = () => {
             <Link
               href={sidebarMenu.link}
               className={`block pb-1 pt-6 px-3 ${
-                selectedMenuId === sidebarMenu.id ? "bg-slate-500" : ""
+                currentPagePath === sidebarMenu.link ? "bg-slate-500" : ""
               }`}
-              onClick={() => handleMenuSelect(sidebarMenu.id)}
             >
               {sidebarMenu.name}
             </Link>
