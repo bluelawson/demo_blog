@@ -1,39 +1,26 @@
-"use client";
-import React, { useState } from "react";
+import React from "react";
 import { Article } from "@/types";
 import ManagedArticleCard from "./ManagedArticleCard";
 
 type ManagedArticleListProps = {
   articles: Article[];
+  handleArticleSelection: (id: string) => void;
 };
 
-const ManagedArticleList = ({ articles }: ManagedArticleListProps) => {
-  const [selectedArticles, setSelectedArticles] = useState<string[]>([]);
-
-  const handleSelectArticle = (id: string) => {
-    setSelectedArticles((prevSelectedItems) =>
-      prevSelectedItems.includes(id)
-        ? prevSelectedItems.filter((itemId) => itemId !== id)
-        : [...prevSelectedItems, id]
-    );
-  };
-
+export default function ManagedArticleList({
+  articles,
+  handleArticleSelection,
+}: ManagedArticleListProps) {
   return (
     <>
-      <div>{selectedArticles.join(", ")}</div>
       {articles.map((article) => (
         <React.Fragment key={article.id}>
-          <div>
-            <input
-              type="checkbox"
-              onChange={() => handleSelectArticle(article.id)}
-            />
-            <ManagedArticleCard article={article} />
-          </div>
+          <ManagedArticleCard
+            article={article}
+            handleArticleSelection={handleArticleSelection}
+          />
         </React.Fragment>
       ))}
     </>
   );
-};
-
-export default ManagedArticleList;
+}

@@ -38,13 +38,26 @@ const ArticleManagement = () => {
     fetchArticles();
   }, []);
 
+  const [selectedArticles, setSelectedArticles] = useState<string[]>([]);
+
+  const handleArticleSelection = (id: string) => {
+    setSelectedArticles((prevSelectedItems) =>
+      prevSelectedItems.includes(id)
+        ? prevSelectedItems.filter((itemId) => itemId !== id)
+        : [...prevSelectedItems, id]
+    );
+  };
   if (loading) {
     return <div>Loading...</div>; // ローディングインディケーターを表示
   }
 
   return (
     <>
-      <ManagedArticleList articles={articles} />
+      <div>{selectedArticles.join(", ")}</div>
+      <ManagedArticleList
+        articles={articles}
+        handleArticleSelection={handleArticleSelection}
+      />
     </>
   );
 };

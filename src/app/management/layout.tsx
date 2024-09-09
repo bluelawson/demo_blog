@@ -10,9 +10,7 @@ export default function ManagementLayout({ children }: LayoutProps) {
       <div className="w-full md:w-1/6 h-screen">
         <ManagementSidebar />
       </div>
-      <div className="w-full md:w-5/6 flex flex-col items-center">
-        {children}
-      </div>
+      <div className="w-full md:w-5/6 ">{children}</div>
     </div>
   );
 }
