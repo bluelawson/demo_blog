@@ -12,12 +12,16 @@ export default function ManagedArticleCard({
   handleArticleSelection,
 }: ManagedArticleCardProps) {
   return (
-    <div>
+    <div className=" py-6 border-b">
       <input
         type="checkbox"
         onChange={() => handleArticleSelection(article.id)}
+        className="mx-4 size-3"
       />
-      <Link href={`articles/${article.id}`} className="text-base text-white">
+      <Link
+        href={`articles/${article.id}`}
+        className="text-base text-white hover:text-slate-300"
+      >
         {article.title}
       </Link>
     </div>

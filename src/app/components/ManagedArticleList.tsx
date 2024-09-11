@@ -13,14 +13,16 @@ export default function ManagedArticleList({
 }: ManagedArticleListProps) {
   return (
     <>
-      {articles.map((article) => (
-        <React.Fragment key={article.id}>
-          <ManagedArticleCard
-            article={article}
-            handleArticleSelection={handleArticleSelection}
-          />
-        </React.Fragment>
-      ))}
+      <div className="mt-6 ml-4 border-t">
+        {articles.map((article) => (
+          <React.Fragment key={article.id}>
+            <ManagedArticleCard
+              article={article}
+              handleArticleSelection={handleArticleSelection}
+            />
+          </React.Fragment>
+        ))}
+      </div>
     </>
   );
 }
