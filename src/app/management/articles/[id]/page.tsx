@@ -77,17 +77,17 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
   return (
     <div className="w-3/4 px-4 py-8">
       <div className="my-5 ">
-        <label className="w-1/6 px-3 py-1 bg-slate-600">タイトル</label>
+        <label className="w-1/6 px-3 py-2 bg-slate-600">タイトル</label>
         <input
           type="text"
-          className="w-4/6 px-1 mx-4 border rounded border-slate-400 bg-slate-700"
+          className="w-4/6 px-2 py-1 mx-4 border rounded border-slate-400 bg-slate-700"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
       </div>
       <div>
         <textarea
-          className="w-full h-64 px-1 py-1 border rounded border-slate-400 bg-slate-700"
+          className="w-full h-64 px-2 py-2 border rounded border-slate-400 bg-slate-700"
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
