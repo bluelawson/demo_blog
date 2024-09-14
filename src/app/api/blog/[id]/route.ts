@@ -17,6 +17,25 @@ export async function GET(req: Request, res: Response) {
   return NextResponse.json(data, { status: 200 });
 }
 
+export async function PUT(req: Request, res: Response) {
+  const id = req.url.split("/blog/")[1];
+
+  // リクエストボディから更新するデータを取得
+  const { title, content } = await req.json(); // 更新するデータ
+
+  // Supabaseの `update` メソッドを使って更新処理
+  const { data, error: updateError } = await supabase
+    .from("posts")
+    .update({ title, content })
+    .eq("id", id);
+
+  if (updateError) {
+    return NextResponse.json(updateError, { status: 500 });
+  }
+
+  return NextResponse.json(data, { status: 200 });
+}
+
 export async function DELETE(req: Request, res: Response) {
   const id = req.url.split("/blog/")[1];
 

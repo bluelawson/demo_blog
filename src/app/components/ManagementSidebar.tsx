@@ -26,7 +26,7 @@ const ManagementSidebar = () => {
 
   return (
     <div className="h-[80%] bg-slate-600">
-      <nav className="text-base py-5 my-4">
+      <nav className="py-5 my-4 text-base">
         {sidebarMenus.map((sidebarMenu) => (
           <div className="ml-1 mr-3 " key={sidebarMenu.id}>
             <Link
