@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import ManagedArticleList from "../../components/ManagedArticleList";
+import { Article } from "@/types";
 
 const ArticleManagement = () => {
-  const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,6 +48,16 @@ const ArticleManagement = () => {
         : [...prevSelectedItems, id]
     );
   };
+
+  const handleAllArticleSelection = () => {
+    const allIdList = articles.map((article) => article.id);
+    if (selectedArticles.length === articles.length) {
+      setSelectedArticles([]);
+    } else {
+      setSelectedArticles(allIdList);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>; // ローディングインディケーターを表示
   }
@@ -57,6 +68,8 @@ const ArticleManagement = () => {
       <ManagedArticleList
         articles={articles}
         handleArticleSelection={handleArticleSelection}
+        handleAllArticleSelection={handleAllArticleSelection}
+        selectedArticles={selectedArticles}
       />
     </>
   );
