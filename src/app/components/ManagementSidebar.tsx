@@ -11,7 +11,7 @@ type Menu = {
 
 const ManagementSidebar = () => {
   const sidebarMenus: Menu[] = [
-    { id: 1, name: "ホーム", link: "/management" },
+    { id: 1, name: "記事投稿", link: "/management/articles/new" },
     { id: 2, name: "記事一覧", link: "/management/articles" },
     { id: 3, name: "アカウント設定", link: "/management/myPage" },
     { id: 4, name: "アクセス解析", link: "#" },
