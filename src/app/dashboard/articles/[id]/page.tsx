@@ -45,7 +45,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
       method: "DELETE",
     });
     if (response.ok) {
-      router.push(`/management/articles?message=削除が完了しました！`);
+      router.push(`/dashboard/articles?message=削除が完了しました！`);
     } else {
       console.error("削除に失敗しました");
     }
@@ -64,7 +64,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
 
     if (response.ok) {
       // 更新が成功したら、新しい画面に遷移し、メッセージをクエリパラメータで渡す
-      router.push(`/management/articles?message=更新が完了しました！`);
+      router.push(`/dashboard/articles?message=更新が完了しました！`);
     } else {
       console.error("更新に失敗しました");
     }

@@ -1,14 +1,14 @@
 import { ReactNode } from "react";
-import ManagementSidebar from "../components/ManagementSidebar"; // サイドバーを適切にインポート
+import DashboardSidebar from "../components/DashboardSidebar"; // サイドバーを適切にインポート
 interface LayoutProps {
   children: ReactNode; // ReactNode型に変更
 }
 
-export default function ManagementLayout({ children }: LayoutProps) {
+export default function DashboardLayout({ children }: LayoutProps) {
   return (
     <div className="md:flex">
       <div className="w-full md:w-1/6 h-screen">
-        <ManagementSidebar />
+        <DashboardSidebar />
       </div>
       <div className="w-full md:w-5/6 mx-4 my-4">{children}</div>
     </div>

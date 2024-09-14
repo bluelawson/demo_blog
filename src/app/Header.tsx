@@ -71,7 +71,7 @@ const Header = () => {
                   : null}
               </span>
               <Link
-                href="/management/articles"
+                href="/dashboard/articles"
                 className="px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700"
               >
                 <span className="i-tabler-user-circle mr-2 relative top-[1px] scale-150"></span>

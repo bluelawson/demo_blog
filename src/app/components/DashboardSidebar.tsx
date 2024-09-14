@@ -9,11 +9,11 @@ type Menu = {
   link: string;
 };
 
-const ManagementSidebar = () => {
+const DashboardSidebar = () => {
   const sidebarMenus: Menu[] = [
-    { id: 1, name: "記事投稿", link: "/management/articles/new" },
-    { id: 2, name: "記事一覧", link: "/management/articles" },
-    { id: 3, name: "アカウント設定", link: "/management/myPage" },
+    { id: 1, name: "記事投稿", link: "/dashboard/articles/new" },
+    { id: 2, name: "記事一覧", link: "/dashboard/articles" },
+    { id: 3, name: "アカウント設定", link: "/dashboard/myPage" },
     { id: 4, name: "アクセス解析", link: "#" },
   ];
   const pathname = usePathname();
@@ -44,4 +44,4 @@ const ManagementSidebar = () => {
   );
 };
 
-export default ManagementSidebar;
+export default DashboardSidebar;
