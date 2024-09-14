@@ -38,28 +38,25 @@ const Header = () => {
   };
 
   return (
-    <header className="py-5 px-10 border-b flex justify-between items-center">
+    <header className="flex items-center justify-between px-10 py-5 border-b">
       <h1 className="text-2xl font-extrabold">
         <Link href="/">Demo Blog</Link>
       </h1>
       <div>
         {loading && <HeaderLoading />}
         <nav className="text-sm" hidden={loading}>
-          <Link href="/" className="text-xs bg-white-300 px-3 py-3 rounded-md">
-            {user ? `こんにちは、${user?.user_metadata.user_name} さん` : null}
-          </Link>
           {!user ? (
             <>
               <Link
                 href="/login"
-                className="text-xs px-2 mx-1 py-2 rounded-lg hover:bg-sky-700"
+                className="px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700"
               >
                 <span className="i-tabler-key mr-3 relative top-[1px] scale-150"></span>
                 ログイン
               </Link>
               <Link
                 href="/signUp"
-                className="text-xs px-2 mx-1 py-2 rounded-lg hover:bg-sky-700"
+                className="px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700"
               >
                 <span className="i-tabler-user-plus mr-3 relative top-[1px] scale-150"></span>
                 新規登録
@@ -68,34 +65,25 @@ const Header = () => {
           ) : null}
           {user ? (
             <>
+              <span className="px-3 py-3 text-xs rounded-md bg-white-300">
+                {user
+                  ? `こんにちは、${user?.user_metadata.user_name} さん`
+                  : null}
+              </span>
               <Link
-                href="/management/myPage"
-                className="text-xs px-2 mx-1 py-2 rounded-lg hover:bg-sky-700"
+                href="/management/articles"
+                className="px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700"
               >
-                <span className="i-tabler-settings mr-2 relative top-[1px] scale-150"></span>
-                アカウント設定
+                <span className="i-tabler-user-circle mr-2 relative top-[1px] scale-150"></span>
+                ダッシュボード
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-xs px-2 mx-1 py-2 rounded-lg hover:bg-sky-700"
+                className="px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700"
               >
                 <span className="i-tabler-lock mr-2 relative top-[1px] scale-150"></span>
                 ログアウト
               </button>
-              <Link
-                href="/management/articles"
-                className="bg-sky-500 font-bold px-3 mx-3 py-2 rounded-lg"
-              >
-                <span className="i-tabler-file-description mr-2 relative top-[1px] scale-150"></span>
-                記事管理
-              </Link>
-              <Link
-                href="/management/articles/new"
-                className="bg-sky-500 font-bold px-3 mx-3 py-2 rounded-lg"
-              >
-                <span className="i-tabler-edit mr-2 relative top-[1px] scale-150"></span>
-                記事投稿
-              </Link>
             </>
           ) : null}
         </nav>
