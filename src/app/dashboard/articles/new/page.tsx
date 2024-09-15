@@ -2,12 +2,14 @@
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
+import { useParamsContext } from "../../../context/ParamsContext";
 
 const CreateBlogPage = () => {
   const router = useRouter();
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const { setMessage } = useParamsContext();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,7 +27,8 @@ const CreateBlogPage = () => {
       body: JSON.stringify({ title, content, userId }),
     });
     if (response.ok) {
-      router.push(`/dashboard/articles?message=投稿が完了しました！`);
+      setMessage("投稿が完了しました！");
+      router.push(`/dashboard/articles`);
     } else {
       console.error("投稿に失敗しました");
     }

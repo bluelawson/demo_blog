@@ -3,20 +3,18 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import ManagedArticleList from "../../components/ManagedArticleList";
 import { Article } from "@/types";
-import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { useParamsContext } from "../../context/ParamsContext";
 
 const ArticleManagement = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const searchParams = useSearchParams(); // クエリパラメータを取得
-  const message = searchParams.get("message"); // "message"クエリパラメータを取得
-  const [messageDisplayFlag, setMessageDisplayFlag] = useState(false);
+  const { message, setMessage } = useParamsContext();
 
   useEffect(() => {
     displayMessage();
     fetchArticles();
-  }, [message]);
+  }, [setMessage]);
 
   const fetchArticles = async () => {
     try {
@@ -47,14 +45,11 @@ const ArticleManagement = () => {
 
   const displayMessage = async () => {
     if (message) {
-      setMessageDisplayFlag(true); // メッセージがあれば表示
-      // 3秒後にメッセージを非表示にする
+      // 2秒後にメッセージをリセット
       const timer = setTimeout(() => {
-        setMessageDisplayFlag(false);
-      }, 3000);
-
-      // クリーンアップ関数でタイマーをクリア
-      return () => clearTimeout(timer);
+        setMessage("");
+      }, 2000);
+      return () => clearTimeout(timer); // クリーンアップ
     }
   };
 
@@ -101,7 +96,7 @@ const ArticleManagement = () => {
 
   return (
     <>
-      {messageDisplayFlag && (
+      {message && (
         <div className="fixed top-0 left-0 z-50 w-full py-2 text-center text-white bg-green-500">
           {message}
         </div>

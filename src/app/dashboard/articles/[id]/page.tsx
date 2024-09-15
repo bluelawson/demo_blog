@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { useParamsContext } from "../../../context/ParamsContext";
 
 const EditArticle = ({ params }: { params: { id: string } }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
+  const { setMessage } = useParamsContext();
 
   useEffect(() => {
     fetchArticles();
@@ -45,7 +47,8 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
       method: "DELETE",
     });
     if (response.ok) {
-      router.push(`/dashboard/articles?message=削除が完了しました！`);
+      setMessage("削除が完了しました！");
+      router.push(`/dashboard/articles`);
     } else {
       console.error("削除に失敗しました");
     }
@@ -63,8 +66,8 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
     });
 
     if (response.ok) {
-      // 更新が成功したら、新しい画面に遷移し、メッセージをクエリパラメータで渡す
-      router.push(`/dashboard/articles?message=更新が完了しました！`);
+      setMessage("更新が完了しました！");
+      router.push(`/dashboard/articles`);
     } else {
       console.error("更新に失敗しました");
     }

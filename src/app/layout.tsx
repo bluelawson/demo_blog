@@ -4,6 +4,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import { Suspense } from "react";
 import Loading from "./loading";
+import { ParamsProvider } from "./context/ParamsContext";
 
 export const metadata: Metadata = {
   title: "Demo Blog",
@@ -21,7 +22,9 @@ export default function RootLayout({
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="flex-grow">
-            <Suspense fallback={<Loading />}>{children}</Suspense>
+            <Suspense fallback={<Loading />}>
+              <ParamsProvider>{children}</ParamsProvider>
+            </Suspense>
           </main>
           <Footer />
         </div>
