@@ -1,4 +1,5 @@
 import React from "react";
+import Icon from "./Icon";
 
 type CrudType = "create" | "update" | "delete";
 type ButtonType = "submit" | "button";
@@ -35,9 +36,7 @@ export default function Button({
       className={`px-3 py-2 mx-5 text-sm rounded-lg ${color}`}
       onClick={handleClick}
     >
-      <span
-        className={`i-tabler-${icon} mr-2 relative top-[2px] scale-100 `}
-      ></span>
+      <Icon iconName={`${icon}`}></Icon>
       {text}
     </button>
   );
