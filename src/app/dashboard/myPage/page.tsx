@@ -12,7 +12,8 @@ const MyPage = () => {
     getUserData();
   }, []);
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -25,6 +26,19 @@ const MyPage = () => {
       }
     }
   };
+
+  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const { error } = await supabase.auth.updateUser({
+      email: email,
+    });
+    if (error) {
+      console.error("Error updating account:", error.message);
+    } else {
+      router.push("/myPage");
+    }
+  };
+
   const getUserData = async () => {
     const {
       data: { user },
@@ -39,37 +53,55 @@ const MyPage = () => {
 
   return (
     <>
-      <div>
-        <label htmlFor="email">Email:</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          value={email}
-          className="text-black"
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="password">Password:</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          value={password}
-          className="text-black"
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <button
-          className="px-3 mx-3 bg-orange-300 rounded-md"
-          onClick={handleDelete}
-        >
-          アカウント削除
-        </button>
+      <div className="w-3/4 px-4 py-8">
+        <form className="" onSubmit={handleUpdate}>
+          <div className="my-5 ">
+            <label htmlFor="email" className="w-1/6 px-3 py-2 bg-slate-600">
+              メールアドレス
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={email}
+              className="w-4/6 px-2 py-1 mx-4 border rounded border-slate-400 bg-slate-700"
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="my-5 ">
+            <label htmlFor="password" className="w-10 px-3 py-2 bg-slate-600">
+              パスワード
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              value={password}
+              className="w-4/6 px-2 py-1 mx-4 border rounded border-slate-400 bg-slate-700 disabled:bg-slate-500"
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              disabled
+            />
+          </div>
+          <div className="flex items-center justify-center pt-4 mt-4 ml-4">
+            <button
+              type="submit"
+              className="px-3 py-2 mx-5 text-sm rounded-lg bg-amber-600"
+            >
+              <span className="i-tabler-refresh mr-2 relative top-[2px] scale-100 "></span>
+              更新
+            </button>
+            <button
+              type="button"
+              className="px-3 py-2 mx-5 text-sm rounded-lg bg-slate-500"
+              onClick={() => handleDelete}
+            >
+              <span className="i-tabler-trash mr-2 relative top-[2px] scale-100 "></span>
+              アカウント削除
+            </button>
+          </div>
+        </form>
       </div>
     </>
   );
