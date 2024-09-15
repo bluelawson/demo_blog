@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { supabase, adminSupabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/navigation";
 
-const MyPage = () => {
+const Account = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -35,7 +35,7 @@ const MyPage = () => {
     if (error) {
       console.error("Error updating account:", error.message);
     } else {
-      router.push("/myPage");
+      router.push("/dashboard/account");
     }
   };
 
@@ -107,4 +107,4 @@ const MyPage = () => {
   );
 };
 
-export default MyPage;
+export default Account;

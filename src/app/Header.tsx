@@ -21,7 +21,7 @@ const Header = () => {
     await supabase.auth.signOut();
     const result = await getUserData();
     if (!result) {
-      router.push("/logout");
+      router.push("/auth/logout");
     }
   };
 
@@ -48,14 +48,14 @@ const Header = () => {
           {!user ? (
             <>
               <Link
-                href="/login"
+                href="/auth/login"
                 className="px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700"
               >
                 <span className="i-tabler-key mr-3 relative top-[1px] scale-150"></span>
                 ログイン
               </Link>
               <Link
-                href="/signUp"
+                href="/auth/signUp"
                 className="px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700"
               >
                 <span className="i-tabler-user-plus mr-3 relative top-[1px] scale-150"></span>
