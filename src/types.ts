@@ -4,3 +4,9 @@ export type Article = {
   content: string;
   createdAt: string;
 };
+
+export type Menu = {
+  id: number;
+  name: string;
+  link: string;
+};

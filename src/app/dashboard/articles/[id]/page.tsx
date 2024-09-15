@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useParamsContext } from "../../../context/ParamsContext";
+import ButtonFrame from "../../../components/ButtonFrame";
+import Button from "../../../components/Button";
 
 const EditArticle = ({ params }: { params: { id: string } }) => {
   const [title, setTitle] = useState("");
@@ -95,24 +97,20 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
           onChange={(e) => setContent(e.target.value)}
         />
       </div>
-      <div className="flex items-center justify-center pt-4 mt-4 ml-4">
-        <button
+      <ButtonFrame>
+        <Button
           type="button"
-          className="px-3 py-2 mx-5 text-sm rounded-lg bg-amber-600"
-          onClick={handleUpdate}
-        >
-          <span className="i-tabler-refresh mr-2 relative top-[2px] scale-100 "></span>
-          更新
-        </button>
-        <button
+          crudType="update"
+          text="更新"
+          handleClick={handleUpdate}
+        />
+        <Button
           type="button"
-          className="px-3 py-2 mx-5 text-sm rounded-lg bg-slate-500"
-          onClick={handleDelete}
-        >
-          <span className="i-tabler-trash mr-2 relative top-[2px] scale-100 "></span>
-          削除
-        </button>
-      </div>
+          crudType="delete"
+          text="削除"
+          handleClick={handleDelete}
+        />
+      </ButtonFrame>
     </div>
   );
 };
