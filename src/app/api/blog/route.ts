@@ -19,17 +19,30 @@ export async function GET(req: NextRequest, res: NextResponse) {
 }
 
 export async function POST(req: Request, res: Response) {
-  const { id, title, content, userId } = await req.json();
+  const { title, content, userId } = await req.json();
 
   const { data, error } = await supabase
     .from("posts")
-    .insert([
-      { id, title, content, createdAt: new Date().toISOString(), userId },
-    ]);
+    .insert([{ title, content, createdAt: new Date().toISOString(), userId }]);
 
   if (error) {
     return NextResponse.json(error);
   }
 
   return NextResponse.json(data, { status: 201 });
+}
+
+export async function DELETE(req: Request, res: Response) {
+  const { selectedArticles: ids } = await req.json();
+
+  const { error: deleteError } = await supabase
+    .from("posts")
+    .delete()
+    .in("id", ids);
+
+  if (deleteError) {
+    return NextResponse.json(deleteError);
+  }
+
+  return NextResponse.json({ status: 200 });
 }

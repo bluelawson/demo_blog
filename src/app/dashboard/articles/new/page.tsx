@@ -5,7 +5,6 @@ import { supabase } from "@/utils/supabaseClient";
 
 const CreateBlogPage = () => {
   const router = useRouter();
-  const [id, setId] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -18,62 +17,54 @@ const CreateBlogPage = () => {
       data: { user },
     } = await supabase.auth.getUser();
     const userId = user?.id;
-    await fetch(`${API_URL}/api/blog`, {
+    const response = await fetch(`${API_URL}/api/blog`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id, title, content, userId }),
+      body: JSON.stringify({ title, content, userId }),
     });
-
+    if (response.ok) {
+      router.push(`/dashboard/articles?message=投稿が完了しました！`);
+    } else {
+      console.error("投稿に失敗しました");
+    }
     setLoading(false);
-    router.push("/");
-    router.refresh();
   };
 
   return (
-    <div className="min-h-screen py-8 px-4 md:px-12">
-      <h2 className="text-2xl font-bold mb-4">ブログ新規作成</h2>
-      <form
-        className="bg-slate-200 p-6 rounded shadow-lg"
-        onSubmit={handleSubmit}
-      >
-        <div className="mb-4">
-          <label className="text-gray-700 text-sm font-bold mb-2">URL</label>
+    <div className="w-3/4 px-4 py-8">
+      <form className="" onSubmit={handleSubmit}>
+        <div className="my-5 ">
+          <label className="w-1/6 px-3 py-2 bg-slate-600">タイトル</label>
           <input
             type="text"
-            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight hover:outline-none"
-            onChange={(e) => setId(e.target.value)}
-          />
-        </div>
-        <div className="mb-4">
-          <label className="text-gray-700 text-sm font-bold mb-2">
-            タイトル
-          </label>
-          <input
-            type="text"
-            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight hover:outline-none"
+            className="w-4/6 px-2 py-1 mx-4 border rounded border-slate-400 bg-slate-700"
             onChange={(e) => setTitle(e.target.value)}
+            required
           />
         </div>
-        <div className="mb-4">
-          <label className="text-gray-700 text-sm font-bold mb-2">本文</label>
+        <div className="my-5 ">
           <textarea
-            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight hover:outline-none"
+            className="w-full h-64 px-2 py-2 border rounded border-slate-400 bg-slate-700"
             onChange={(e) => setContent(e.target.value)}
+            required
           />
         </div>
-        <button
-          type="submit"
-          className={`py-2 px-4 border rounded-md ${
-            loading
-              ? "bg-orange-300 cursor-not-allowed"
-              : "bg-orange-400 hover:bg-orange-500"
-          } `}
-          disabled={loading}
-        >
-          投稿
-        </button>
+        <div className="flex items-center justify-center pt-4 mt-4 ml-4">
+          <button
+            type="submit"
+            className={`px-3 py-2 mx-5 text-sm rounded-lg ${
+              loading
+                ? "bg-sky-300 cursor-not-allowed"
+                : "bg-sky-500 hover:bg-sky-600"
+            } `}
+            disabled={loading}
+          >
+            <span className="i-tabler-edit mr-2 relative top-[2px] scale-100 "></span>
+            投稿
+          </button>
+        </div>
       </form>
     </div>
   );

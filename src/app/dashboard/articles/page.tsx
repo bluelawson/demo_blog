@@ -4,6 +4,7 @@ import { supabase } from "@/utils/supabaseClient";
 import ManagedArticleList from "../../components/ManagedArticleList";
 import { Article } from "@/types";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const ArticleManagement = () => {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -80,6 +81,20 @@ const ArticleManagement = () => {
     }
   };
 
+  const router = useRouter();
+  const handleDelete = async () => {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    const response = await fetch(`${API_URL}/api/blog`, {
+      method: "DELETE",
+      body: JSON.stringify({ selectedArticles }),
+    });
+    if (response.ok) {
+      router.push(`/dashboard/articles?message=削除が完了しました！`);
+    } else {
+      console.error("削除に失敗しました");
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>; // ローディングインディケーターを表示
   }
@@ -95,6 +110,7 @@ const ArticleManagement = () => {
         articles={articles}
         handleArticleSelection={handleArticleSelection}
         handleAllArticleSelection={handleAllArticleSelection}
+        handleDelete={handleDelete}
         selectedArticles={selectedArticles}
         areAllArticlesSelected={areAllArticlesSelected}
       />

@@ -6,6 +6,7 @@ type ManagedArticleListProps = {
   articles: Article[];
   handleArticleSelection: (id: string) => void;
   handleAllArticleSelection: () => void;
+  handleDelete: () => void;
   selectedArticles: string[];
   areAllArticlesSelected: boolean;
 };
@@ -14,6 +15,7 @@ export default function ManagedArticleList({
   articles,
   handleArticleSelection,
   handleAllArticleSelection,
+  handleDelete,
   selectedArticles,
   areAllArticlesSelected,
 }: ManagedArticleListProps) {
@@ -22,13 +24,14 @@ export default function ManagedArticleList({
       <div className="flex items-center justify-between pt-4 mt-4 ml-4">
         <input
           type="checkbox"
-          onChange={() => handleAllArticleSelection()}
+          onChange={handleAllArticleSelection}
           checked={areAllArticlesSelected}
           className="ml-4 size-3"
         />
         <button
           type="button"
           className="px-3 py-2 mr-6 text-xs rounded-lg bg-slate-500"
+          onClick={handleDelete}
         >
           <span className="i-tabler-trash mr-2 relative top-[2px] scale-100 "></span>
           選択した記事を削除
