@@ -3,8 +3,11 @@ import React, { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useParamsContext } from "../../../context/ParamsContext";
-import ButtonFrame from "../../../components/ButtonFrame";
-import Button from "../../../components/Button";
+import ButtonFrame from "../../../components/form/ButtonFrame";
+import Button from "../../../components/form/Button";
+import Input from "../../../components/form/Input";
+import TextArea from "../../../components/form/TextArea";
+import FormFrame from "../../../components/form/FormFrame";
 
 const EditArticle = ({ params }: { params: { id: string } }) => {
   const [title, setTitle] = useState("");
@@ -43,6 +46,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
   };
 
   const router = useRouter();
+
   const handleDelete = async () => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const response = await fetch(`${API_URL}/api/blog/${params.id}`, {
@@ -56,7 +60,8 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
     }
   };
 
-  const handleUpdate = async () => {
+  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const id = params.id;
     const response = await fetch(`${API_URL}/api/blog/${params.id}`, {
@@ -80,30 +85,15 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
   }
 
   return (
-    <div className="w-3/4 px-4 py-8">
-      <div className="my-5 ">
-        <label className="w-1/6 px-3 py-2 bg-slate-600">タイトル</label>
-        <input
-          type="text"
-          className="w-4/6 px-2 py-1 mx-4 border rounded border-slate-400 bg-slate-700"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </div>
-      <div>
-        <textarea
-          className="w-full h-64 px-2 py-2 border rounded border-slate-400 bg-slate-700"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-      </div>
+    <FormFrame onSubmit={handleUpdate}>
+      <Input
+        label="タイトル"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <TextArea value={content} onChange={(e) => setContent(e.target.value)} />
       <ButtonFrame>
-        <Button
-          type="button"
-          crudType="update"
-          text="更新"
-          handleClick={handleUpdate}
-        />
+        <Button type="submit" crudType="update" text="更新" />
         <Button
           type="button"
           crudType="delete"
@@ -111,7 +101,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
           handleClick={handleDelete}
         />
       </ButtonFrame>
-    </div>
+    </FormFrame>
   );
 };
 

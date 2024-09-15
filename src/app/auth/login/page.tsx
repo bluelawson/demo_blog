@@ -2,12 +2,18 @@
 import React, { useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/navigation";
+import ButtonFrame from "../../components/form/ButtonFrame";
+import Button from "../../components/form/Button";
+import Input from "../../components/form/Input";
+import FormFrame from "../../components/form/FormFrame";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const handleLogin = async () => {
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const { error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
@@ -19,39 +25,23 @@ const Login = () => {
 
   return (
     <>
-      <div>
-        <label htmlFor="email">Email:</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
+      <FormFrame onSubmit={handleLogin}>
+        <Input
+          label="メールアドレス"
           value={email}
-          className="text-black"
+          type="email"
           onChange={(e) => setEmail(e.target.value)}
-          required
         />
-      </div>
-      <div>
-        <label htmlFor="password">Password:</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
+        <Input
+          label="パスワード"
           value={password}
-          className="text-black"
+          type="password"
           onChange={(e) => setPassword(e.target.value)}
-          required
         />
-      </div>
-      <div>
-        <button
-          type="button"
-          className="px-3 mx-3 bg-orange-300 rounded-md"
-          onClick={handleLogin}
-        >
-          Log in
-        </button>
-      </div>
+        <ButtonFrame>
+          <Button type="submit" crudType="update" text="ログイン" />
+        </ButtonFrame>
+      </FormFrame>
     </>
   );
 };

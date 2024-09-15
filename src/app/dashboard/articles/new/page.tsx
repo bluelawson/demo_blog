@@ -3,11 +3,11 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { useParamsContext } from "../../../context/ParamsContext";
-import Button from "../../../components/Button";
-import ButtonFrame from "../../../components/ButtonFrame";
-import Input from "../../../components/Input";
-import TextArea from "../../../components/TextArea";
-import FormFrame from "../../../components/FormFrame";
+import Button from "../../../components/form/Button";
+import ButtonFrame from "../../../components/form/ButtonFrame";
+import Input from "../../../components/form/Input";
+import TextArea from "../../../components/form/TextArea";
+import FormFrame from "../../../components/form/FormFrame";
 
 const CreateBlogPage = () => {
   const router = useRouter();

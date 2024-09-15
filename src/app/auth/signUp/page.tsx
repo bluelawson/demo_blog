@@ -2,13 +2,19 @@
 import React, { useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/navigation";
+import ButtonFrame from "../../components/form/ButtonFrame";
+import Button from "../../components/form/Button";
+import Input from "../../components/form/Input";
+import FormFrame from "../../components/form/FormFrame";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const handleSignUp = async () => {
+
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const { error } = await supabase.auth.signUp({
       email: email,
       password: password,
@@ -23,50 +29,29 @@ const SignUp = () => {
 
   return (
     <>
-      <div>
-        <label htmlFor="email">Email:</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
+      <FormFrame onSubmit={handleSignUp}>
+        <Input
+          label="メールアドレス"
           value={email}
-          className="text-black"
+          type="email"
           onChange={(e) => setEmail(e.target.value)}
-          required
         />
-      </div>
-      <div>
-        <label htmlFor="userName">ユーザ名:</label>
-        <input
-          id="userName"
-          name="userName"
-          type="userName"
+        <Input
+          label="ユーザ名"
           value={userName}
-          className="text-black"
+          type="text"
           onChange={(e) => setUserName(e.target.value)}
-          required
         />
-      </div>
-      <div>
-        <label htmlFor="password">Password:</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
+        <Input
+          label="パスワード"
           value={password}
-          className="text-black"
+          type="password"
           onChange={(e) => setPassword(e.target.value)}
-          required
         />
-      </div>
-      <div>
-        <button
-          className="px-3 mx-3 bg-orange-300 rounded-md"
-          onClick={handleSignUp}
-        >
-          Sign Up
-        </button>
-      </div>
+        <ButtonFrame>
+          <Button type="submit" crudType="create" text="新規登録" />
+        </ButtonFrame>
+      </FormFrame>
     </>
   );
 };
