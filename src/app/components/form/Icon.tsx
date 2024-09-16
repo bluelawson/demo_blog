@@ -5,7 +5,5 @@ type IconProps = {
 };
 
 export default function Icon({ iconName }: IconProps) {
-  return (
-    <span className={`i-tabler-${iconName} mr-2 relative top-[2px] `}></span>
-  );
+  return <span className={`i-tabler-edit mr-2 relative top-[2px] `}></span>;
 }
