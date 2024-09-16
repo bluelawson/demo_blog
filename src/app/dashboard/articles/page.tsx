@@ -5,6 +5,7 @@ import ManagedArticleList from "../../components/ManagedArticleList";
 import { Article } from "@/types";
 import { useRouter } from "next/navigation";
 import { useParamsContext } from "../../context/ParamsContext";
+import Test from "../../components/Test";
 
 const ArticleManagement = () => {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -101,6 +102,7 @@ const ArticleManagement = () => {
           {message}
         </div>
       )}
+      <Test />
       <ManagedArticleList
         articles={articles}
         handleArticleSelection={handleArticleSelection}
