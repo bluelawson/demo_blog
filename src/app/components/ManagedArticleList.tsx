@@ -1,6 +1,7 @@
 import React from "react";
 import { Article } from "@/types";
 import ManagedArticleCard from "./ManagedArticleCard";
+import Button from "../components/form/Button";
 
 type ManagedArticleListProps = {
   articles: Article[];
@@ -28,14 +29,12 @@ export default function ManagedArticleList({
           checked={areAllArticlesSelected}
           className="ml-4 size-3"
         />
-        <button
+        <Button
           type="button"
-          className="px-3 py-2 mr-6 text-xs rounded-lg bg-slate-500"
-          onClick={handleDelete}
-        >
-          <span className="i-tabler-trash mr-2 relative top-[2px] scale-100 "></span>
-          選択した記事を削除
-        </button>
+          crudType="delete"
+          text="選択した記事を削除"
+          handleClick={handleDelete}
+        />
       </div>
       <div className="mt-3 ml-4 border-t border-slate-500">
         {articles.map((article) => (
