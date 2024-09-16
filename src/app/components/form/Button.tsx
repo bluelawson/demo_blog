@@ -36,7 +36,7 @@ export default function Button({
       className={`px-3 py-2 mx-5 text-sm rounded-lg ${color}`}
       onClick={handleClick}
     >
-      <Icon iconName={`${icon}`}></Icon>
+      <Icon iconName={`${icon}`} />
       {text}
     </button>
   );
