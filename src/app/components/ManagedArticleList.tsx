@@ -2,7 +2,6 @@ import React from "react";
 import { Article } from "@/types";
 import ManagedArticleCard from "./ManagedArticleCard";
 import Button from "../components/form/Button";
-import Test from "../components/Test";
 
 type ManagedArticleListProps = {
   articles: Article[];
@@ -30,7 +29,6 @@ export default function ManagedArticleList({
           checked={areAllArticlesSelected}
           className="ml-4 size-3"
         />
-        <Test />
         <Button
           type="button"
           crudType="delete"

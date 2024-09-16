@@ -1,5 +1,5 @@
 import React from "react";
-import Icon from "./Icon";
+import * as TablerIcons from "@tabler/icons-react"; // Tabler Icons をすべてインポート
 
 type CrudType = "create" | "update" | "delete";
 type ButtonType = "submit" | "button";
@@ -23,12 +23,12 @@ export default function Button({
       : crudType === "update"
       ? "bg-amber-600"
       : "bg-slate-500";
-  const icon =
+  const IconComponent =
     crudType === "create"
-      ? "edit"
+      ? TablerIcons.IconEdit
       : crudType === "update"
-      ? "refresh"
-      : "trash";
+      ? TablerIcons.IconRefresh
+      : TablerIcons.IconTrash;
 
   return (
     <button
@@ -36,7 +36,7 @@ export default function Button({
       className={`px-3 py-2 mx-5 text-sm rounded-lg ${color}`}
       onClick={handleClick}
     >
-      <Icon iconName={`${icon}`} />
+      <IconComponent className="mr-2 relative top-[2px]" size={16} />
       {text}
     </button>
   );
