@@ -67,7 +67,7 @@ export default function ImageUploader({
           <img
             src={imageUrl}
             alt="uploaded"
-            className="max-w-xs border rounded-lg"
+            className="object-cover w-full h-48 mb-4 rounded"
           />
         </div>
       )}
