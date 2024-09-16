@@ -8,18 +8,16 @@ import Button from "../../../components/form/Button";
 import Input from "../../../components/form/Input";
 import TextArea from "../../../components/form/TextArea";
 import FormFrame from "../../../components/form/FormFrame";
-import ImageUpload from "../../../components/form/ImageUpload";
+import ImageUploader from "../../../components/form/ImageUploader";
 import { supabase } from "@/utils/supabaseClient";
 
 const EditArticle = ({ params }: { params: { id: string } }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [image, setImage] = useState<File | null>(null);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const { setMessage } = useParamsContext();
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchArticles();
@@ -73,10 +71,10 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
 
     let imageUrl = null;
     // 画像をSupabase storageにアップロードする
-    if (image) {
+    if (uploadFile) {
       const { data, error } = await supabase.storage
         .from("demo")
-        .upload(`pictures/${Date.now()}_${image.name}`, image);
+        .upload(`pictures/${Date.now()}_${uploadFile.name}`, uploadFile);
 
       if (error) {
         console.error("Image upload error:", error.message);
@@ -104,38 +102,6 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
     }
   };
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const fileName = file.name;
-
-      // ファイル名に日本語が含まれているかチェック
-      const hasJapanese = /[^\x00-\x7F]/.test(fileName); // 非ASCII文字（全角文字）のチェック
-
-      if (hasJapanese) {
-        if (inputRef.current) {
-          inputRef.current.value = "";
-        }
-        setError(
-          "ファイル名に日本語が含まれています。別の名前を使用してください。"
-        );
-        setImage(null);
-        return;
-      }
-      setError("");
-      setImage(file);
-      setImageUrl(URL.createObjectURL(file));
-    }
-  };
-
-  const handleClose = async () => {
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
-    setImage(null);
-    setImageUrl("");
-  };
-
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -148,13 +114,9 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
         onChange={(e) => setTitle(e.target.value)}
       />
       <TextArea value={content} onChange={(e) => setContent(e.target.value)} />
-      {/* エラーメッセージ表示 */}
-      {error && <p className="mt-2 text-red-500">{error}</p>}
-      <ImageUpload
-        imageUrl={imageUrl}
-        inputRef={inputRef}
-        handleClose={handleClose}
-        handleUpload={handleUpload}
+      <ImageUploader
+        onUploadComplete={setUploadFile}
+        fetchImageUrl={imageUrl}
       />
       <ButtonFrame>
         <Button type="submit" crudType="update" text="更新" />
