@@ -21,12 +21,12 @@ export async function PUT(req: Request, res: Response) {
   const id = req.url.split("/blog/")[1];
 
   // リクエストボディから更新するデータを取得
-  const { title, content } = await req.json(); // 更新するデータ
+  const { title, content, imageUrl } = await req.json(); // 更新するデータ
 
   // Supabaseの `update` メソッドを使って更新処理
   const { data, error: updateError } = await supabase
     .from("posts")
-    .update({ title, content })
+    .update({ title, content, imageUrl })
     .eq("id", id);
 
   if (updateError) {
