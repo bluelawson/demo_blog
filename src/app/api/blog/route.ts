@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest, res: NextResponse) {
   const userId = req.nextUrl.searchParams.get("userId");
   let query = supabase.from("posts").select("*");
-  console.log(userId);
   if (userId !== null) {
     query = query.eq("userId", userId);
   }

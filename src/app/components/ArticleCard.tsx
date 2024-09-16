@@ -13,14 +13,14 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
       key={article.id}
     >
       <img
-        src={`/sample/articleImage.jpg`}
-        alt={"no image"}
+        src={article.imageUrl}
+        alt={`no image`}
         className="object-cover w-full h-48"
       />
       <div className="p-4">
         <Link href={`articles/${article.id}`}>
           <h3 className="mb-1 text-lg font-semibold ">{article.title}</h3>
-          <p className="text-xs text-slate-300">{article.content}</p>
+          <p className="text-xs truncate text-slate-300">{article.content}</p>
         </Link>
       </div>
     </div>

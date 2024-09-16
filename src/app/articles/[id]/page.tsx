@@ -11,24 +11,24 @@ const Article = async ({ params }: { params: { id: string } }) => {
   });
 
   const detailArticle = await res.json();
+  console.log(detailArticle.content);
   if (!detailArticle) {
     notFound();
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-5">
-      <Image
-        src={`/sample/articleImage.jpg`}
-        alt="no image"
-        width={1280}
-        height={300}
+    <div className="flex flex-col max-w-3xl p-5 mx-auto">
+      <img
+        src={detailArticle.imageUrl}
+        alt={`no image`}
+        className="object-cover"
       />
-      <h1 className="text-4xl text-center mb-10 mt-10">
+      <h1 className="mt-10 mb-10 text-4xl text-center ">
         {detailArticle.title}
       </h1>
-      <div className="text-lg leading-relaxed text-justify">
-        <p>{detailArticle.content}</p>
-      </div>
+      <p className="mx-10 mb-8 text-lg" style={{ whiteSpace: "pre-wrap" }}>
+        {detailArticle.content}
+      </p>
     </div>
   );
 };
