@@ -34,6 +34,7 @@ const CreateBlogPage = () => {
     if (response.ok) {
       setMessage("投稿が完了しました！");
       router.push(`/dashboard/articles`);
+      router.refresh();
     } else {
       console.error("投稿に失敗しました");
     }

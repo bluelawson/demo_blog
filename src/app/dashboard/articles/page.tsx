@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import ManagedArticleList from "../../components/ManagedArticleList";
 import { Article } from "@/types";
-import { useRouter } from "next/navigation";
 import { useParamsContext } from "../../context/ParamsContext";
 
 const ArticleManagement = () => {
@@ -14,7 +13,7 @@ const ArticleManagement = () => {
   useEffect(() => {
     displayMessage();
     fetchArticles();
-  }, [setMessage]);
+  }, [message]);
 
   const fetchArticles = async () => {
     try {
@@ -76,7 +75,6 @@ const ArticleManagement = () => {
     }
   };
 
-  const router = useRouter();
   const handleDelete = async () => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const response = await fetch(`${API_URL}/api/blog`, {
@@ -84,7 +82,7 @@ const ArticleManagement = () => {
       body: JSON.stringify({ selectedArticles }),
     });
     if (response.ok) {
-      router.push(`/dashboard/articles?message=削除が完了しました！`);
+      setMessage("削除が完了しました！");
     } else {
       console.error("削除に失敗しました");
     }
