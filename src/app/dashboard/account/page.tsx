@@ -2,10 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase, adminSupabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/navigation";
-import ButtonFrame from "../../components/form/ButtonFrame";
-import Button from "../../components/form/Button";
-import Input from "../../components/form/Input";
-import FormFrame from "../../components/form/FormFrame";
+import { ButtonFrame, Button, Input, FormFrame } from "@/components/form";
 
 const Account = () => {
   const [email, setEmail] = useState("");
@@ -59,7 +56,7 @@ const Account = () => {
 
   return (
     <>
-      {message && <p className="bg-amber-400 px-1 text-black">{message}</p>}
+      {message && <p className="px-1 text-black bg-amber-400">{message}</p>}
       <FormFrame onSubmit={handleUpdate}>
         <Input
           label="メールアドレス"

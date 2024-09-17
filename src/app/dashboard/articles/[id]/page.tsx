@@ -3,12 +3,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { notFound } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useParamsContext } from "../../../context/ParamsContext";
-import ButtonFrame from "../../../components/form/ButtonFrame";
-import Button from "../../../components/form/Button";
-import Input from "../../../components/form/Input";
-import TextArea from "../../../components/form/TextArea";
-import FormFrame from "../../../components/form/FormFrame";
-import ImageUploader from "../../../components/form/ImageUploader";
+import {
+  ButtonFrame,
+  Button,
+  Input,
+  FormFrame,
+  TextArea,
+  ImageUploader,
+} from "@/components/form";
 import { supabase } from "@/utils/supabaseClient";
 
 const EditArticle = ({ params }: { params: { id: string } }) => {

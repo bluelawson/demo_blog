@@ -1,7 +1,7 @@
 import React from "react";
 import { Article } from "@/types";
 import ManagedArticleCard from "./ManagedArticleCard";
-import Button from "../components/form/Button";
+import Button from "./form/Button";
 
 type ManagedArticleListProps = {
   articles: Article[];

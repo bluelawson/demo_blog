@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/utils/supabaseClient";
 import { usePathname, useRouter } from "next/navigation";
-import HeaderLoading from "./headerLoading";
+import Loading from "./Loading";
+import { NavButton } from "@/components/form";
 
 const Header = () => {
   const router = useRouter();
@@ -43,24 +44,20 @@ const Header = () => {
         <Link href="/">Demo Blog</Link>
       </h1>
       <div>
-        {loading && <HeaderLoading />}
+        {loading && <Loading header />}
         <nav className="text-sm" hidden={loading}>
           {!user ? (
             <>
-              <Link
+              <NavButton
                 href="/auth/login"
-                className="px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700"
-              >
-                <span className="i-tabler-key mr-3 relative top-[1px] scale-150"></span>
-                ログイン
-              </Link>
-              <Link
+                iconClass="i-tabler-key"
+                text={"ログイン"}
+              />
+              <NavButton
                 href="/auth/signUp"
-                className="px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700"
-              >
-                <span className="i-tabler-user-plus mr-3 relative top-[1px] scale-150"></span>
-                新規登録
-              </Link>
+                iconClass="i-tabler-user-plus"
+                text={"新規登録"}
+              />
             </>
           ) : null}
           {user ? (
@@ -70,20 +67,16 @@ const Header = () => {
                   ? `こんにちは、${user?.user_metadata.user_name} さん`
                   : null}
               </span>
-              <Link
+              <NavButton
                 href="/dashboard/articles"
-                className="px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700"
-              >
-                <span className="i-tabler-user-circle mr-2 relative top-[1px] scale-150"></span>
-                ダッシュボード
-              </Link>
-              <button
+                iconClass="i-tabler-user-circle"
+                text={"ダッシュボード"}
+              />
+              <NavButton
                 onClick={handleLogout}
-                className="px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700"
-              >
-                <span className="i-tabler-lock mr-2 relative top-[1px] scale-150"></span>
-                ログアウト
-              </button>
+                iconClass="i-tabler-lock"
+                text={"ログアウト"}
+              />
             </>
           ) : null}
         </nav>

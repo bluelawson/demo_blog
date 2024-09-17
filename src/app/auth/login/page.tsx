@@ -2,10 +2,7 @@
 import React, { useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { useRouter } from "next/navigation";
-import ButtonFrame from "../../components/form/ButtonFrame";
-import Button from "../../components/form/Button";
-import Input from "../../components/form/Input";
-import FormFrame from "../../components/form/FormFrame";
+import { ButtonFrame, Button, Input, FormFrame } from "@/components/form";
 
 const Login = () => {
   const [email, setEmail] = useState("");

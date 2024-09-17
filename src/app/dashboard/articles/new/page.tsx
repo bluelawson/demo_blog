@@ -3,12 +3,14 @@ import { useRouter } from "next/navigation";
 import React, { useState, useRef } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { useParamsContext } from "../../../context/ParamsContext";
-import Button from "../../../components/form/Button";
-import ButtonFrame from "../../../components/form/ButtonFrame";
-import Input from "../../../components/form/Input";
-import TextArea from "../../../components/form/TextArea";
-import FormFrame from "../../../components/form/FormFrame";
-import ImageUploader from "../../../components/form/ImageUploader";
+import {
+  ButtonFrame,
+  Button,
+  Input,
+  FormFrame,
+  TextArea,
+  ImageUploader,
+} from "@/components/form";
 
 const CreateBlogPage = () => {
   const router = useRouter();

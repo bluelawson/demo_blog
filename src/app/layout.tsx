@@ -3,7 +3,7 @@ import "./globals.css";
 import Header from "./Header";
 import Footer from "./Footer";
 import { Suspense } from "react";
-import Loading from "./loading";
+import Loading from "./Loading";
 import { ParamsProvider } from "./context/ParamsContext";
 
 export const metadata: Metadata = {
