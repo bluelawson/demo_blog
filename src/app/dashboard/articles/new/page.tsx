@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { supabase } from "@/utils/supabaseClient";
-import { useParamsContext } from "../../../../context/ParamsContext";
+import { useParamsContext } from "@/context/ParamsContext";
 import {
   ButtonFrame,
   Button,
