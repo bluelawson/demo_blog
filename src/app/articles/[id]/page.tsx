@@ -1,6 +1,6 @@
-import Image from "next/image";
-import React from "react";
-import { notFound } from "next/navigation";
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
+import React from 'react';
 
 const Article = async ({ params }: { params: { id: string } }) => {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -26,7 +26,7 @@ const Article = async ({ params }: { params: { id: string } }) => {
       <h1 className="mt-10 mb-10 text-4xl text-center ">
         {detailArticle.title}
       </h1>
-      <p className="mx-10 mb-8 text-lg" style={{ whiteSpace: "pre-wrap" }}>
+      <p className="mx-10 mb-8 text-lg" style={{ whiteSpace: 'pre-wrap' }}>
         {detailArticle.content}
       </p>
     </div>

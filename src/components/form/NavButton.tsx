@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from 'next/link';
 
 type Props = {
   href?: string;
@@ -8,7 +8,7 @@ type Props = {
 };
 
 const NavButton = ({ href, iconClass, text, onClick }: Props) => {
-  const commonClasses = "px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700";
+  const commonClasses = 'px-2 py-2 mx-1 text-xs rounded-lg hover:bg-sky-700';
 
   return href ? (
     <Link href={href} className={commonClasses}>

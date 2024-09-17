@@ -1,10 +1,11 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { supabase } from "@/utils/supabaseClient";
-import ManagedArticleList from "@/components/ManagedArticleList";
-import { Article } from "@/types";
-import Loading from "@/components/Loading";
-import { useParamsContext } from "@/context/ParamsContext";
+'use client';
+import React, { useState, useEffect } from 'react';
+
+import Loading from '@/components/Loading';
+import ManagedArticleList from '@/components/ManagedArticleList';
+import { useParamsContext } from '@/context/ParamsContext';
+import { Article } from '@/types';
+import { supabase } from '@/utils/supabaseClient';
 
 const ArticleManagement = () => {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -26,18 +27,18 @@ const ArticleManagement = () => {
       if (userId) {
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
         const res = await fetch(`${API_URL}/api/blog?userId=${userId}`, {
-          cache: "no-store",
+          cache: 'no-store',
         });
 
         if (res.ok) {
           const data = await res.json();
           setArticles(data);
         } else {
-          console.error("Failed to fetch articles");
+          console.error('Failed to fetch articles');
         }
       }
     } catch (error) {
-      console.error("Error fetching articles:", error);
+      console.error('Error fetching articles:', error);
     } finally {
       setLoading(false);
     }
@@ -47,7 +48,7 @@ const ArticleManagement = () => {
     if (message) {
       // 2秒後にメッセージをリセット
       const timer = setTimeout(() => {
-        setMessage("");
+        setMessage('');
       }, 2000);
       return () => clearTimeout(timer); // クリーンアップ
     }
@@ -61,7 +62,7 @@ const ArticleManagement = () => {
     setSelectedArticles((prevSelectedItems) =>
       prevSelectedItems.includes(id)
         ? prevSelectedItems.filter((itemId) => itemId !== id)
-        : [...prevSelectedItems, id]
+        : [...prevSelectedItems, id],
     );
   };
 
@@ -79,13 +80,13 @@ const ArticleManagement = () => {
   const handleDelete = async () => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const response = await fetch(`${API_URL}/api/blog`, {
-      method: "DELETE",
+      method: 'DELETE',
       body: JSON.stringify({ selectedArticles }),
     });
     if (response.ok) {
-      setMessage("削除が完了しました！");
+      setMessage('削除が完了しました！');
     } else {
-      console.error("削除に失敗しました");
+      console.error('削除に失敗しました');
     }
   };
 

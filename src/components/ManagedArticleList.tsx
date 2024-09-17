@@ -1,7 +1,9 @@
-import React from "react";
-import { Article } from "@/types";
-import ManagedArticleCard from "./ManagedArticleCard";
-import Button from "./form/Button";
+import React from 'react';
+
+import { Article } from '@/types';
+
+import Button from './form/Button';
+import ManagedArticleCard from './ManagedArticleCard';
 
 type ManagedArticleListProps = {
   articles: Article[];

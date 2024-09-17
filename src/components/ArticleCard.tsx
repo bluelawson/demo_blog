@@ -1,6 +1,7 @@
-import { Article } from "@/types";
-import React from "react";
-import Link from "next/link";
+import Link from 'next/link';
+import React from 'react';
+
+import { Article } from '@/types';
 
 type ArticleCardProps = {
   article: Article;

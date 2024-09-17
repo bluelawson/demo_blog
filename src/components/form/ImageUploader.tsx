@@ -1,5 +1,5 @@
-"use client";
-import React, { useState, useRef } from "react";
+'use client';
+import React, { useState, useRef } from 'react';
 
 type ImageUploaderProps = {
   fetchImageUrl?: string;
@@ -10,8 +10,8 @@ export default function ImageUploader({
   fetchImageUrl,
   onUploadComplete,
 }: ImageUploaderProps) {
-  const [imageUrl, setImageUrl] = useState<string>(fetchImageUrl ?? "");
-  const [error, setError] = useState<string>("");
+  const [imageUrl, setImageUrl] = useState<string>(fetchImageUrl ?? '');
+  const [error, setError] = useState<string>('');
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,16 +23,16 @@ export default function ImageUploader({
 
       if (hasJapanese) {
         if (inputRef.current) {
-          inputRef.current.value = "";
+          inputRef.current.value = '';
         }
         setError(
-          "ファイル名に日本語が含まれています。別の名前を使用してください。"
+          'ファイル名に日本語が含まれています。別の名前を使用してください。',
         );
-        setImageUrl("");
+        setImageUrl('');
         return;
       }
 
-      setError("");
+      setError('');
       setImageUrl(URL.createObjectURL(file));
 
       if (onUploadComplete) {
@@ -43,10 +43,10 @@ export default function ImageUploader({
 
   const handleClose = () => {
     if (inputRef.current) {
-      inputRef.current.value = "";
+      inputRef.current.value = '';
     }
-    setImageUrl("");
-    setError("");
+    setImageUrl('');
+    setError('');
 
     if (onUploadComplete) {
       onUploadComplete(null);

@@ -1,7 +1,7 @@
-import { Menu } from "@/types";
+import { Menu } from '@/types';
 
 export const sidebarMenus: Menu[] = [
-  { id: 1, name: "記事投稿", link: "/dashboard/articles/new" },
-  { id: 2, name: "記事一覧", link: "/dashboard/articles" },
-  { id: 3, name: "アカウント設定", link: "/dashboard/account" },
+  { id: 1, name: '記事投稿', link: '/dashboard/articles/new' },
+  { id: 2, name: '記事一覧', link: '/dashboard/articles' },
+  { id: 3, name: 'アカウント設定', link: '/dashboard/account' },
 ];

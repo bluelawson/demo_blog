@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { createContext, useState, useContext, ReactNode } from "react";
+import { createContext, useState, useContext, ReactNode } from 'react';
 
 type ParamsContextType = {
   message: string;
@@ -10,7 +10,7 @@ type ParamsContextType = {
 const ParamsContext = createContext<ParamsContextType | undefined>(undefined);
 
 export function ParamsProvider({ children }: { children: ReactNode }) {
-  const [message, setMessage] = useState<string>("");
+  const [message, setMessage] = useState<string>('');
 
   return (
     <ParamsContext.Provider value={{ message, setMessage }}>
@@ -22,7 +22,7 @@ export function ParamsProvider({ children }: { children: ReactNode }) {
 export function useParamsContext() {
   const context = useContext(ParamsContext);
   if (context === undefined) {
-    throw new Error("useParamsContext must be used within a ParamsProvider");
+    throw new Error('useParamsContext must be used within a ParamsProvider');
   }
   return context;
 }

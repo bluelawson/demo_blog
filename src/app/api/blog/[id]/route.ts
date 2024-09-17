@@ -1,13 +1,14 @@
-import { supabase } from "@/utils/supabaseClient";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server';
+
+import { supabase } from '@/utils/supabaseClient';
 
 export async function GET(req: Request, res: Response) {
-  const id = req.url.split("/blog/")[1];
+  const id = req.url.split('/blog/')[1];
 
   const { data, error } = await supabase
-    .from("posts")
-    .select("*")
-    .eq("id", id)
+    .from('posts')
+    .select('*')
+    .eq('id', id)
     .single();
 
   if (error) {
@@ -18,16 +19,16 @@ export async function GET(req: Request, res: Response) {
 }
 
 export async function PUT(req: Request, res: Response) {
-  const id = req.url.split("/blog/")[1];
+  const id = req.url.split('/blog/')[1];
 
   // リクエストボディから更新するデータを取得
   const { title, content, imageUrl } = await req.json(); // 更新するデータ
 
   // Supabaseの `update` メソッドを使って更新処理
   const { data, error: updateError } = await supabase
-    .from("posts")
+    .from('posts')
     .update({ title, content, imageUrl })
-    .eq("id", id);
+    .eq('id', id);
 
   if (updateError) {
     return NextResponse.json(updateError, { status: 500 });
@@ -37,12 +38,12 @@ export async function PUT(req: Request, res: Response) {
 }
 
 export async function DELETE(req: Request, res: Response) {
-  const id = req.url.split("/blog/")[1];
+  const id = req.url.split('/blog/')[1];
 
   const { error: deleteError } = await supabase
-    .from("posts")
+    .from('posts')
     .delete()
-    .eq("id", id);
+    .eq('id', id);
 
   if (deleteError) {
     return NextResponse.json(deleteError);

@@ -1,5 +1,6 @@
-import Link from "next/link";
-import { Menu } from "@/types";
+import Link from 'next/link';
+
+import { Menu } from '@/types';
 
 type SidebarMenuProps = {
   sidebarMenus: Menu[];
@@ -18,7 +19,7 @@ export default function SidebarMenu({
             <Link
               href={sidebarMenu.link}
               className={`block pb-1 pt-6 px-3 ${
-                currentPagePath === sidebarMenu.link ? "bg-slate-500" : ""
+                currentPagePath === sidebarMenu.link ? 'bg-slate-500' : ''
               }`}
             >
               {sidebarMenu.name}

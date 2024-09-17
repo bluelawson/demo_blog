@@ -1,13 +1,14 @@
-"use client";
-import React, { useState } from "react";
-import { supabase } from "@/utils/supabaseClient";
-import { useRouter } from "next/navigation";
-import { ButtonFrame, Button, Input, FormFrame } from "@/components/form";
+'use client';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+
+import { ButtonFrame, Button, Input, FormFrame } from '@/components/form';
+import { supabase } from '@/utils/supabaseClient';
 
 const SignUp = () => {
-  const [email, setEmail] = useState("");
-  const [userName, setUserName] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [userName, setUserName] = useState('');
+  const [password, setPassword] = useState('');
   const router = useRouter();
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -18,7 +19,7 @@ const SignUp = () => {
       options: { data: { user_name: userName } },
     });
     if (!error) {
-      router.push("/");
+      router.push('/');
     } else {
       console.log(error);
     }

@@ -1,5 +1,6 @@
-import { ReactNode } from "react";
-import DashboardSidebar from "@/components/DashboardSidebar";
+import { ReactNode } from 'react';
+
+import DashboardSidebar from '@/components/DashboardSidebar';
 interface LayoutProps {
   children: ReactNode;
 }

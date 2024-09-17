@@ -1,8 +1,8 @@
-import React from "react";
-import * as TablerIcons from "@tabler/icons-react"; // Tabler Icons をすべてインポート
+import * as TablerIcons from '@tabler/icons-react'; // Tabler Icons をすべてインポート
+import React from 'react';
 
-type CrudType = "create" | "update" | "delete";
-type ButtonType = "submit" | "button";
+type CrudType = 'create' | 'update' | 'delete';
+type ButtonType = 'submit' | 'button';
 
 type ButtonProps = {
   type: ButtonType;
@@ -18,17 +18,17 @@ export default function Button({
   handleClick,
 }: ButtonProps) {
   const color =
-    crudType === "create"
-      ? "bg-sky-500"
-      : crudType === "update"
-      ? "bg-amber-600"
-      : "bg-slate-500";
+    crudType === 'create'
+      ? 'bg-sky-500'
+      : crudType === 'update'
+        ? 'bg-amber-600'
+        : 'bg-slate-500';
   const IconComponent =
-    crudType === "create"
+    crudType === 'create'
       ? TablerIcons.IconEdit
-      : crudType === "update"
-      ? TablerIcons.IconRefresh
-      : TablerIcons.IconTrash;
+      : crudType === 'update'
+        ? TablerIcons.IconRefresh
+        : TablerIcons.IconTrash;
 
   return (
     <button

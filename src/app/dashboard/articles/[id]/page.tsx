@@ -1,8 +1,7 @@
-"use client";
-import React, { useState, useEffect, useRef } from "react";
-import { notFound } from "next/navigation";
-import { useRouter } from "next/navigation";
-import { useParamsContext } from "@/context/ParamsContext";
+'use client';
+import { notFound, useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+
 import {
   ButtonFrame,
   Button,
@@ -10,14 +9,15 @@ import {
   FormFrame,
   TextArea,
   ImageUploader,
-} from "@/components/form";
-import { supabase } from "@/utils/supabaseClient";
-import Loading from "@/components/Loading";
+} from '@/components/form';
+import Loading from '@/components/Loading';
+import { useParamsContext } from '@/context/ParamsContext';
+import { supabase } from '@/utils/supabaseClient';
 
 const EditArticle = ({ params }: { params: { id: string } }) => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
   const { setMessage } = useParamsContext();
@@ -44,10 +44,10 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
         setContent(detailArticle.content);
         setImageUrl(detailArticle.imageUrl);
       } else {
-        console.error("Failed to fetch articles");
+        console.error('Failed to fetch articles');
       }
     } catch (error) {
-      console.error("Error fetching articles:", error);
+      console.error('Error fetching articles:', error);
     } finally {
       setLoading(false);
     }
@@ -58,13 +58,13 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
   const handleDelete = async () => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const response = await fetch(`${API_URL}/api/blog/${params.id}`, {
-      method: "DELETE",
+      method: 'DELETE',
     });
     if (response.ok) {
-      setMessage("削除が完了しました！");
+      setMessage('削除が完了しました！');
       router.push(`/dashboard/articles`);
     } else {
-      console.error("削除に失敗しました");
+      console.error('削除に失敗しました');
     }
   };
 
@@ -76,11 +76,11 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
     // 画像をSupabase storageにアップロードする
     if (uploadFile) {
       const { data, error } = await supabase.storage
-        .from("demo")
+        .from('demo')
         .upload(`pictures/${Date.now()}_${uploadFile.name}`, uploadFile);
 
       if (error) {
-        console.error("Image upload error:", error.message);
+        console.error('Image upload error:', error.message);
         setLoading(false);
         return;
       }
@@ -90,18 +90,18 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
 
     const id = params.id;
     const response = await fetch(`${API_URL}/api/blog/${params.id}`, {
-      method: "PUT",
+      method: 'PUT',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({ id, title, content, imageUrl }),
     });
 
     if (response.ok) {
-      setMessage("更新が完了しました！");
+      setMessage('更新が完了しました！');
       router.push(`/dashboard/articles`);
     } else {
-      console.error("更新に失敗しました");
+      console.error('更新に失敗しました');
     }
   };
 

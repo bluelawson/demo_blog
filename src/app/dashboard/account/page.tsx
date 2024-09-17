@@ -1,12 +1,13 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { supabase, adminSupabase } from "@/utils/supabaseClient";
-import { useRouter } from "next/navigation";
-import { ButtonFrame, Button, Input, FormFrame } from "@/components/form";
+'use client';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+
+import { ButtonFrame, Button, Input, FormFrame } from '@/components/form';
+import { supabase, adminSupabase } from '@/utils/supabaseClient';
 
 const Account = () => {
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -20,7 +21,7 @@ const Account = () => {
     if (user) {
       const { error } = await adminSupabase.auth.admin.deleteUser(user?.id);
       if (!error) {
-        router.push("/");
+        router.push('/');
       } else {
         console.log(error);
       }
@@ -33,12 +34,12 @@ const Account = () => {
       email: email,
     });
     if (error) {
-      console.error("Error updating account:", error.message);
+      console.error('Error updating account:', error.message);
     } else {
       setMessage(
-        "変更前のメールアドレス宛に本人確認のフォームを送信しました。"
+        '変更前のメールアドレス宛に本人確認のフォームを送信しました。',
       );
-      router.push("/dashboard/account");
+      router.push('/dashboard/account');
     }
   };
 
@@ -47,9 +48,9 @@ const Account = () => {
       data: { user },
     } = await supabase.auth.getUser();
     if (user) {
-      setEmail(user.email ?? "");
+      setEmail(user.email ?? '');
     } else {
-      setEmail("");
+      setEmail('');
     }
     return user;
   };

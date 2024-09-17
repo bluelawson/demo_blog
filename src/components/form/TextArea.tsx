@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 type TextAreaProps = {
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;

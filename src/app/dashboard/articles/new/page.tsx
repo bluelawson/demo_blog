@@ -1,8 +1,7 @@
-"use client";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
-import { supabase } from "@/utils/supabaseClient";
-import { useParamsContext } from "@/context/ParamsContext";
+'use client';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+
 import {
   ButtonFrame,
   Button,
@@ -10,13 +9,15 @@ import {
   FormFrame,
   TextArea,
   ImageUploader,
-} from "@/components/form";
-import Loading from "@/components/Loading";
+} from '@/components/form';
+import Loading from '@/components/Loading';
+import { useParamsContext } from '@/context/ParamsContext';
+import { supabase } from '@/utils/supabaseClient';
 
 const CreateBlogPage = () => {
   const router = useRouter();
-  const [title, setTitle] = useState<string>("");
-  const [content, setContent] = useState<string>("");
+  const [title, setTitle] = useState<string>('');
+  const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const { setMessage } = useParamsContext();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -29,11 +30,11 @@ const CreateBlogPage = () => {
     // 画像をSupabase storageにアップロードする
     if (uploadedFile) {
       const { data, error } = await supabase.storage
-        .from("demo")
+        .from('demo')
         .upload(`pictures/${Date.now()}_${uploadedFile.name}`, uploadedFile);
 
       if (error) {
-        console.error("Image upload error:", error.message);
+        console.error('Image upload error:', error.message);
         setLoading(false);
         return;
       }
@@ -47,9 +48,9 @@ const CreateBlogPage = () => {
     } = await supabase.auth.getUser();
     const userId = user?.id;
     const response = await fetch(`${API_URL}/api/blog`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         title,
@@ -61,11 +62,11 @@ const CreateBlogPage = () => {
       }),
     });
     if (response.ok) {
-      setMessage("投稿が完了しました！");
+      setMessage('投稿が完了しました！');
       router.push(`/dashboard/articles`);
       router.refresh();
     } else {
-      console.error("投稿に失敗しました");
+      console.error('投稿に失敗しました');
     }
     setLoading(false);
   };

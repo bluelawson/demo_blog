@@ -1,11 +1,13 @@
-"use client";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
-import { supabase } from "@/utils/supabaseClient";
-import { usePathname, useRouter } from "next/navigation";
-import Loading from "../components/Loading";
-import { NavButton } from "@/components/form";
+'use client';
+import { User } from '@supabase/supabase-js';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+
+import { NavButton } from '@/components/form';
+import { supabase } from '@/utils/supabaseClient';
+
+import Loading from '../components/Loading';
 
 const Header = () => {
   const router = useRouter();
@@ -22,7 +24,7 @@ const Header = () => {
     await supabase.auth.signOut();
     const result = await getUserData();
     if (!result) {
-      router.push("/auth/logout");
+      router.push('/auth/logout');
     }
   };
 
@@ -51,12 +53,12 @@ const Header = () => {
               <NavButton
                 href="/auth/login"
                 iconClass="i-tabler-key"
-                text={"ログイン"}
+                text={'ログイン'}
               />
               <NavButton
                 href="/auth/signUp"
                 iconClass="i-tabler-user-plus"
-                text={"新規登録"}
+                text={'新規登録'}
               />
             </>
           ) : null}
@@ -70,12 +72,12 @@ const Header = () => {
               <NavButton
                 href="/dashboard/articles"
                 iconClass="i-tabler-user-circle"
-                text={"ダッシュボード"}
+                text={'ダッシュボード'}
               />
               <NavButton
                 onClick={handleLogout}
                 iconClass="i-tabler-lock"
-                text={"ログアウト"}
+                text={'ログアウト'}
               />
             </>
           ) : null}
