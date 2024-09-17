@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import ManagedArticleList from "@/components/ManagedArticleList";
 import { Article } from "@/types";
-import { useParamsContext } from "../../context/ParamsContext";
+import { useParamsContext } from "../../../context/ParamsContext";
 
 const ArticleManagement = () => {
   const [articles, setArticles] = useState<Article[]>([]);

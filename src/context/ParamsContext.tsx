@@ -1,4 +1,4 @@
-"use client"; // Next.js 13でクライアントサイドで使用する
+"use client";
 
 import { createContext, useState, useContext, ReactNode } from "react";
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { notFound } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useParamsContext } from "../../../context/ParamsContext";
+import { useParamsContext } from "../../../../context/ParamsContext";
 import {
   ButtonFrame,
   Button,
