@@ -9,6 +9,7 @@ import FormFrame from "../../components/form/FormFrame";
 
 const Account = () => {
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -37,6 +38,9 @@ const Account = () => {
     if (error) {
       console.error("Error updating account:", error.message);
     } else {
+      setMessage(
+        "変更前のメールアドレス宛に本人確認のフォームを送信しました。"
+      );
       router.push("/dashboard/account");
     }
   };
@@ -55,6 +59,7 @@ const Account = () => {
 
   return (
     <>
+      {message && <p className="bg-amber-400 px-1 text-black">{message}</p>}
       <FormFrame onSubmit={handleUpdate}>
         <Input
           label="メールアドレス"

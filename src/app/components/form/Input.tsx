@@ -9,8 +9,8 @@ type InputProps = {
 
 export default function Input({ label, type, value, onChange }: InputProps) {
   return (
-    <div className="my-5">
-      <label className="w-1/6 px-3 py-2 bg-slate-600">{label}</label>
+    <div className="flex items-center my-5">
+      <label className="w-[140px] px-3 py-2 bg-slate-600">{label}</label>
       <input
         type={type ?? "text"}
         value={value}
