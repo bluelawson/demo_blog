@@ -12,6 +12,7 @@ import {
   ImageUploader,
 } from "@/components/form";
 import { supabase } from "@/utils/supabaseClient";
+import Loading from "@/components/Loading";
 
 const EditArticle = ({ params }: { params: { id: string } }) => {
   const [title, setTitle] = useState("");
@@ -105,7 +106,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return (

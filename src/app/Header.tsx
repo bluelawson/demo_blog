@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/utils/supabaseClient";
 import { usePathname, useRouter } from "next/navigation";
-import Loading from "./Loading";
+import Loading from "../components/Loading";
 import { NavButton } from "@/components/form";
 
 const Header = () => {

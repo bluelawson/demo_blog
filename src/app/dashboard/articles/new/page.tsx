@@ -11,6 +11,7 @@ import {
   TextArea,
   ImageUploader,
 } from "@/components/form";
+import Loading from "@/components/Loading";
 
 const CreateBlogPage = () => {
   const router = useRouter();
@@ -70,7 +71,7 @@ const CreateBlogPage = () => {
   };
 
   if (loading) {
-    return <div></div>;
+    return <Loading />;
   }
 
   return (
