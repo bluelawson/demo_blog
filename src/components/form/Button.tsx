@@ -8,6 +8,7 @@ type ButtonProps = {
   type: ButtonType;
   crudType: CrudType;
   text: string;
+  disabled?: boolean;
   handleClick?: () => void;
 };
 
@@ -15,14 +16,16 @@ export default function Button({
   type,
   crudType,
   text,
+  disabled,
   handleClick,
 }: ButtonProps) {
-  const color =
-    crudType === 'create'
-      ? 'bg-sky-500'
+  const color = disabled
+    ? 'bg-gray-400'
+    : crudType === 'create'
+      ? 'bg-sky-500 hover:bg-sky-600'
       : crudType === 'update'
-        ? 'bg-amber-600'
-        : 'bg-slate-500';
+        ? 'bg-amber-600 hover:bg-amber-700'
+        : 'bg-slate-500 hover:bg-slate-600';
   const IconComponent =
     crudType === 'create'
       ? TablerIcons.IconEdit
@@ -33,8 +36,9 @@ export default function Button({
   return (
     <button
       type={type}
-      className={`flex px-3 py-2 mx-5 text-sm rounded-lg ${color}`}
+      className={`flex px-3 py-2 mx-5 text-sm rounded-lg ${color} ${disabled ? 'cursor-not-allowed' : ''}`}
       onClick={handleClick}
+      disabled={disabled}
     >
       <IconComponent className="mr-2 relative top-[2px]" size={16} />
       {text}

@@ -72,6 +72,7 @@ const Account = () => {
             crudType="delete"
             text="アカウント削除"
             handleClick={handleDelete}
+            disabled
           />
         </ButtonFrame>
       </FormFrame>
