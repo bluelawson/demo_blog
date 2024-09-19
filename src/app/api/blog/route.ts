@@ -20,7 +20,6 @@ export async function GET(req: NextRequest, res: NextResponse) {
 
 export async function POST(req: Request, res: Response) {
   const { title, content, userId, imageUrl } = await req.json();
-  console.log(imageUrl);
   const { data, error } = await supabase
     .from('posts')
     .insert([
