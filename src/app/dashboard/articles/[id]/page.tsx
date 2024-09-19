@@ -94,7 +94,14 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ id, title, content, imageUrl }),
+      body: JSON.stringify({
+        id,
+        title,
+        content,
+        imageUrl: imageUrl
+          ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/demo/${imageUrl}`
+          : null,
+      }),
     });
 
     if (response.ok) {
