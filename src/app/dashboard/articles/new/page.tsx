@@ -43,11 +43,12 @@ const CreateBlogPage = () => {
     }
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    const userId = user?.id;
-    const response = await fetch(`${API_URL}/api/blog`, {
+    const res = await fetch(`${API_URL}/api/blog/user`, {
+      method: 'GET',
+    });
+    const fetchedData = await res.json();
+    const userId = fetchedData?.id;
+    const response = await fetch(`${API_URL}/api/blog/posts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

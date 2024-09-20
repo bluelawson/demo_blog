@@ -29,7 +29,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
   const fetchArticles = async () => {
     try {
       const API_URL = process.env.NEXT_PUBLIC_API_URL;
-      const res = await fetch(`${API_URL}/api/blog/${params.id}`, {
+      const res = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
         next: {
           revalidate: 10,
         },
@@ -57,7 +57,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
 
   const handleDelete = async () => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${API_URL}/api/blog/${params.id}`, {
+    const response = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
       method: 'DELETE',
     });
     if (response.ok) {
@@ -89,7 +89,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
     }
 
     const id = params.id;
-    const response = await fetch(`${API_URL}/api/blog/${params.id}`, {
+    const response = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

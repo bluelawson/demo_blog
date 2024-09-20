@@ -4,7 +4,7 @@ import React from 'react';
 
 const Article = async ({ params }: { params: { id: string } }) => {
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
-  const res = await fetch(`${API_URL}/api/blog/${params.id}`, {
+  const res = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
     next: {
       revalidate: 10,
     },

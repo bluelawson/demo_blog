@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 import { ButtonFrame, Button, Input, FormFrame } from '@/components/form';
-import { supabase } from '@/utils/supabaseClient';
+import { API_URL } from '@/utils/constants';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -12,11 +12,17 @@ const Login = () => {
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
+    const response = await fetch(`${API_URL}/api/blog/auth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
     });
-    if (!error) {
+    if (response.ok) {
       router.push('/');
     }
   };

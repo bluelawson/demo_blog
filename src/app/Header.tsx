@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import { NavButton } from '@/components/form';
-import { supabase } from '@/utils/supabaseClient';
+import { API_URL } from '@/utils/constants';
 
 import Loading from '../components/Loading';
 
@@ -16,12 +16,17 @@ const Header = () => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    getUserData();
-    setLoading(false);
+    const fetchData = async () => {
+      await getUserData();
+      setLoading(false);
+    };
+    fetchData();
   }, [pathname]);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await fetch(`${API_URL}/api/blog/auth`, {
+      method: 'DELETE',
+    });
     const result = await getUserData();
     if (!result) {
       router.push('/auth/logout');
@@ -29,15 +34,17 @@ const Header = () => {
   };
 
   const getUserData = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      setUser(user);
+    const response = await fetch(`${API_URL}/api/blog/user`, {
+      method: 'GET',
+    });
+    const fetchedData = await response.json();
+    if (response.ok) {
+      setUser(fetchedData);
+      return fetchedData;
     } else {
       setUser(null);
+      return;
     }
-    return user;
   };
 
   return (

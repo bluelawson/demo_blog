@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/utils/supabaseClient';
 
 export async function GET(req: Request, res: Response) {
-  const id = req.url.split('/blog/')[1];
+  const id = req.url.split('/blog/posts/')[1];
 
   const { data, error } = await supabase
     .from('posts')
@@ -19,7 +19,7 @@ export async function GET(req: Request, res: Response) {
 }
 
 export async function PUT(req: Request, res: Response) {
-  const id = req.url.split('/blog/')[1];
+  const id = req.url.split('/blog/posts/')[1];
 
   // リクエストボディから更新するデータを取得
   const { title, content, imageUrl } = await req.json(); // 更新するデータ
@@ -38,7 +38,7 @@ export async function PUT(req: Request, res: Response) {
 }
 
 export async function DELETE(req: Request, res: Response) {
-  const id = req.url.split('/blog/')[1];
+  const id = req.url.split('/blog/posts/')[1];
 
   const { error: deleteError } = await supabase
     .from('posts')

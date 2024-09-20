@@ -5,6 +5,7 @@ import Loading from '@/components/Loading';
 import ManagedArticleList from '@/components/ManagedArticleList';
 import { useParamsContext } from '@/context/ParamsContext';
 import { Article } from '@/types';
+import { API_URL } from '@/utils/constants';
 import { supabase } from '@/utils/supabaseClient';
 
 const ArticleManagement = () => {
@@ -19,14 +20,14 @@ const ArticleManagement = () => {
 
   const fetchArticles = async () => {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      const userId = user?.id;
-
+      const response = await fetch(`${API_URL}/api/blog/user`, {
+        method: 'GET',
+      });
+      const fetchedData = await response.json();
+      const userId = fetchedData?.id;
+      console.log(fetchedData);
       if (userId) {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL;
-        const res = await fetch(`${API_URL}/api/blog?userId=${userId}`, {
+        const res = await fetch(`${API_URL}/api/blog/posts?userId=${userId}`, {
           cache: 'no-store',
         });
 
@@ -79,7 +80,7 @@ const ArticleManagement = () => {
 
   const handleDelete = async () => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${API_URL}/api/blog`, {
+    const response = await fetch(`${API_URL}/api/blog/posts`, {
       method: 'DELETE',
       body: JSON.stringify({ selectedArticles }),
     });
