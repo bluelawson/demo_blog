@@ -97,9 +97,6 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
     const id = params.id;
     const response = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({
         id,
         title,
