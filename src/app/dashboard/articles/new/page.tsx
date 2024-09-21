@@ -12,7 +12,6 @@ import {
 } from '@/components/form';
 import Loading from '@/components/Loading';
 import { useParamsContext } from '@/context/ParamsContext';
-import { supabase } from '@/utils/supabaseClient';
 
 const CreateBlogPage = () => {
   const router = useRouter();
@@ -20,29 +19,35 @@ const CreateBlogPage = () => {
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const { setMessage } = useParamsContext();
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
     let imageUrl = null;
     // 画像をSupabase storageにアップロードする
-    if (uploadedFile) {
-      const { data, error } = await supabase.storage
-        .from('demo')
-        .upload(`pictures/${Date.now()}_${uploadedFile.name}`, uploadedFile);
+    if (uploadFile) {
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+      formData.append('fileName', uploadFile.name);
 
-      if (error) {
-        console.error('Image upload error:', error.message);
+      const response = await fetch(`${API_URL}/api/blog/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Image upload error:', error.error);
         setLoading(false);
         return;
       }
 
-      imageUrl = data.path;
+      const { path } = await response.json();
+      imageUrl = path;
     }
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const res = await fetch(`${API_URL}/api/blog/user`, {
       method: 'GET',
     });
@@ -57,9 +62,7 @@ const CreateBlogPage = () => {
         title,
         content,
         userId,
-        imageUrl: imageUrl
-          ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/demo/${imageUrl}`
-          : null,
+        imageUrl: imageUrl,
       }),
     });
     if (response.ok) {
@@ -84,7 +87,7 @@ const CreateBlogPage = () => {
         onChange={(e) => setTitle(e.target.value)}
       />
       <TextArea value={content} onChange={(e) => setContent(e.target.value)} />
-      <ImageUploader onUploadComplete={setUploadedFile} />
+      <ImageUploader onUploadComplete={setUploadFile} />
       <ButtonFrame>
         <Button type="submit" crudType="create" text="投稿" />
       </ButtonFrame>

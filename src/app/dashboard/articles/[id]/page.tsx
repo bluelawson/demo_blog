@@ -12,7 +12,6 @@ import {
 } from '@/components/form';
 import Loading from '@/components/Loading';
 import { useParamsContext } from '@/context/ParamsContext';
-import { supabase } from '@/utils/supabaseClient';
 
 const EditArticle = ({ params }: { params: { id: string } }) => {
   const [title, setTitle] = useState('');
@@ -75,17 +74,24 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
     let imageUrl = null;
     // 画像をSupabase storageにアップロードする
     if (uploadFile) {
-      const { data, error } = await supabase.storage
-        .from('demo')
-        .upload(`pictures/${Date.now()}_${uploadFile.name}`, uploadFile);
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+      formData.append('fileName', uploadFile.name);
 
-      if (error) {
-        console.error('Image upload error:', error.message);
+      const response = await fetch(`${API_URL}/api/blog/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Image upload error:', error.error);
         setLoading(false);
         return;
       }
 
-      imageUrl = data.path;
+      const { path } = await response.json();
+      imageUrl = path;
     }
 
     const id = params.id;
@@ -98,9 +104,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
         id,
         title,
         content,
-        imageUrl: imageUrl
-          ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/demo/${imageUrl}`
-          : null,
+        imageUrl: imageUrl,
       }),
     });
 
