@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 import { ButtonFrame, Button, Input, FormFrame } from '@/components/form';
+import { API_URL } from '@/utils/constants';
 import { supabase } from '@/utils/supabaseClient';
 
 const SignUp = () => {
@@ -13,15 +14,21 @@ const SignUp = () => {
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-      options: { data: { user_name: userName } },
+    const response = await fetch(`${API_URL}/api/blog/user`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        userName,
+      }),
     });
-    if (!error) {
+    if (response.ok) {
       router.push('/');
     } else {
-      console.log(error);
+      console.log(await response.json());
     }
   };
 

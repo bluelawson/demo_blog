@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'; // クッキーを取得するためのNext.jsのヘルパー
 import { NextResponse } from 'next/server';
 
-import { supabase } from '@/utils/supabaseClient';
+import { supabase, adminSupabase } from '@/utils/supabaseClient';
 
 export async function GET(req: Request) {
   const cookieStore = cookies();
@@ -29,4 +29,68 @@ export async function GET(req: Request) {
   }
 
   return NextResponse.json(user, { status: 200 });
+}
+
+export async function POST(req: Request, res: Response) {
+  try {
+    const { email, password, userName } = await req.json();
+    console.log(userName);
+    const { error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+      options: { data: { user_name: userName } },
+    });
+
+    // 登録失敗時の処理
+    if (error) {
+      console.log(error);
+      return NextResponse.json(
+        { error: `Invalid credentials: ${error.message}` },
+        { status: 401 },
+      );
+    }
+
+    // 成功
+    const response = NextResponse.json(
+      { message: 'SignUp successful' },
+      { status: 200 },
+    );
+
+    return response;
+  } catch (error) {
+    console.error('SignUp error:', error);
+    return NextResponse.json(
+      { error: 'Something went wrong' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(req: Request, res: Response) {
+  try {
+    const { userId } = await req.json();
+    const { error } = await adminSupabase.auth.admin.deleteUser(userId);
+
+    // 登録失敗時の処理
+    if (error) {
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 },
+      );
+    }
+
+    // 成功
+    const response = NextResponse.json(
+      { message: 'Delete User successful' },
+      { status: 200 },
+    );
+
+    return response;
+  } catch (error) {
+    console.error('Delete User error:', error);
+    return NextResponse.json(
+      { error: 'Something went wrong' },
+      { status: 500 },
+    );
+  }
 }

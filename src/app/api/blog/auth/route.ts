@@ -1,7 +1,50 @@
+import { type EmailOtpType } from '@supabase/supabase-js';
+import { redirect } from 'next/navigation';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { API_URL } from '@/utils/constants';
 import { supabase } from '@/utils/supabaseClient';
 
+// ユーザ登録時に送られる認証メールのリンク先
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const token_hash = searchParams.get('token_hash');
+  const type = searchParams.get('type') as EmailOtpType | null;
+  const next = searchParams.get('next') ?? `${API_URL}`;
+
+  if (token_hash && type) {
+    // OTPを検証してセッション情報を取得
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.verifyOtp({
+      type,
+      token_hash,
+    });
+
+    if (!error && session) {
+      // 認証トークンを取得してCookieに保存
+      const accessToken = session.access_token;
+
+      // Cookieに保存
+      const response = NextResponse.redirect(next); // リダイレクト設定
+
+      response.cookies.set('sb-access-token', accessToken, {
+        httpOnly: true, // JavaScriptからアクセスできない
+        secure: process.env.NODE_ENV === 'production', // HTTPSの場合のみsecureフラグを設定
+        maxAge: 60 * 60 * 24 * 7, // 1週間
+        path: '/', // ルート全体で有効
+      });
+
+      return response;
+    }
+  }
+
+  // エラーページにリダイレクト
+  return redirect('/error');
+}
+
+// ログイン
 export async function POST(req: Request, res: Response) {
   try {
     const { email, password } = await req.json();
@@ -45,6 +88,7 @@ export async function POST(req: Request, res: Response) {
   }
 }
 
+// ログアウト
 export async function DELETE(req: Request) {
   // Supabaseでのサインアウト処理
   const { error } = await supabase.auth.signOut();

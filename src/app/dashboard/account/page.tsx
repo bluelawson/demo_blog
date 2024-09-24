@@ -3,7 +3,8 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import { ButtonFrame, Button, Input, FormFrame } from '@/components/form';
-import { supabase, adminSupabase } from '@/utils/supabaseClient';
+import { API_URL } from '@/utils/constants';
+import { supabase } from '@/utils/supabaseClient';
 
 const Account = () => {
   const [email, setEmail] = useState('');
@@ -15,24 +16,36 @@ const Account = () => {
   }, []);
 
   const handleDelete = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { error } = await adminSupabase.auth.admin.deleteUser(user?.id);
-      if (!error) {
+    const response = await fetch(`${API_URL}/api/blog/user`, {
+      method: 'GET',
+    });
+    const fetchedData = await response.json();
+    if (response.ok) {
+      const userId = fetchedData?.id;
+      const res = await fetch(`${API_URL}/api/blog/user`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+        }),
+      });
+      if (res.ok) {
         router.push('/');
       } else {
-        console.log(error);
+        console.log('Failed User Delete');
       }
     }
   };
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // サーバサイドに移動したいが、方法がわからないので断念
     const { error } = await supabase.auth.updateUser({
       email: email,
     });
+
     if (error) {
       console.error('Error updating account:', error.message);
     } else {
@@ -44,15 +57,15 @@ const Account = () => {
   };
 
   const getUserData = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      setEmail(user.email ?? '');
+    const response = await fetch(`${API_URL}/api/blog/user`, {
+      method: 'GET',
+    });
+    const fetchedData = await response.json();
+    if (response.ok) {
+      setEmail(fetchedData.email);
     } else {
       setEmail('');
     }
-    return user;
   };
 
   return (
@@ -72,7 +85,7 @@ const Account = () => {
             crudType="delete"
             text="アカウント削除"
             handleClick={handleDelete}
-            disabled
+            // disabled
           />
         </ButtonFrame>
       </FormFrame>

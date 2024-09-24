@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 
 import { ButtonFrame, Button, Input, FormFrame } from '@/components/form';
 import { API_URL } from '@/utils/constants';
+import { supabase } from '@/utils/supabaseClient';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -23,6 +24,14 @@ const Login = () => {
       }),
     });
     if (response.ok) {
+      // クライアントサイドでもログインする
+      // const {
+      //   data: { session },
+      //   error,
+      // } = await supabase.auth.signInWithPassword({
+      //   email: email,
+      //   password: password,
+      // });
       router.push('/');
     }
   };
