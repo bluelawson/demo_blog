@@ -54,6 +54,25 @@ const Account = () => {
       );
       router.push('/dashboard/account');
     }
+
+    // const res = await fetch(`${API_URL}/api/blog/user`, {
+    //   method: 'PUT',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({
+    //     email: email,
+    //   }),
+    // });
+    // const fetchedData = await res.json();
+    // if (res.ok) {
+    //   setMessage(
+    //     '変更前のメールアドレス宛に本人確認のフォームを送信しました。',
+    //   );
+    //   router.push('/dashboard/account');
+    // } else {
+    //   console.error('Error updating account:', fetchedData);
+    // }
   };
 
   const getUserData = async () => {
