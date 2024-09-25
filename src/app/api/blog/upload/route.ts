@@ -2,12 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { supabase } from '@/utils/supabaseClient';
 
-export const config = {
-  api: {
-    bodyParser: false, // formDataを使用するのでbodyParserを無効にします
-  },
-};
-
 // POST リクエスト処理
 export async function POST(req: NextRequest) {
   try {
