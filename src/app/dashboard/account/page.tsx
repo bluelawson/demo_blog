@@ -50,7 +50,7 @@ const Account = () => {
     //   console.error('Error updating account:', error.message);
     // } else {
     //   setMessage(
-    //     '変更前のメールアドレス宛に本人確認のフォームを送信しました。',
+    //     '変更前・変更後のメールアドレス宛に本人確認のリンクを送信しました。',
     //   );
     //   router.push('/dashboard/account');
     // }
@@ -67,7 +67,7 @@ const Account = () => {
     const fetchedData = await res.json();
     if (res.ok) {
       setMessage(
-        '変更前のメールアドレス宛に本人確認のフォームを送信しました。',
+        '変更前・変更後のメールアドレス宛に本人確認のリンクを送信しました。',
       );
       router.push('/dashboard/account');
     } else {

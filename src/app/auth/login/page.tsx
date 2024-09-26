@@ -25,13 +25,13 @@ const Login = () => {
     });
     if (response.ok) {
       // クライアントサイドでもログインする
-      // const {
-      //   data: { session },
-      //   error,
-      // } = await supabase.auth.signInWithPassword({
-      //   email: email,
-      //   password: password,
-      // });
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
       router.push('/');
     }
   };
