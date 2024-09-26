@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'; // クッキーを取得するためのNext.jsのヘルパー
 import { NextResponse } from 'next/server';
 
-import { createClient } from '@/utils/server';
+import { createClient } from '@/utils/supabase/server';
 import { supabase, adminSupabase } from '@/utils/supabaseClient';
 
 export async function GET(req: Request) {
@@ -68,36 +68,36 @@ export async function POST(req: Request, res: Response) {
 }
 
 // メールアドレス変更処理
-// export async function PUT(req: Request, res: Response) {
-//   try {
-//     const supabaseServer = createClient();
-//     const { email } = await req.json();
-//     const { error } = await supabaseServer.auth.updateUser(email);
+export async function PUT(req: Request, res: Response) {
+  try {
+    const supabaseServer = createClient();
+    const { email } = await req.json();
+    const { error } = await supabaseServer.auth.updateUser(email);
 
-//     // 登録失敗時の処理
-//     if (error) {
-//       console.log(error);
-//       return NextResponse.json(
-//         { error: 'Invalid credentials' },
-//         { status: 401 },
-//       );
-//     }
+    // 登録失敗時の処理
+    if (error) {
+      console.log(error);
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 },
+      );
+    }
 
-//     // 成功
-//     const response = NextResponse.json(
-//       { message: 'Update User successful' },
-//       { status: 200 },
-//     );
+    // 成功
+    const response = NextResponse.json(
+      { message: 'Update User successful' },
+      { status: 200 },
+    );
 
-//     return response;
-//   } catch (error) {
-//     console.error('Update User error:', error);
-//     return NextResponse.json(
-//       { error: 'Something went wrong' },
-//       { status: 500 },
-//     );
-//   }
-// }
+    return response;
+  } catch (error) {
+    console.error('Update User error:', error);
+    return NextResponse.json(
+      { error: 'Something went wrong' },
+      { status: 500 },
+    );
+  }
+}
 
 export async function DELETE(req: Request, res: Response) {
   try {
