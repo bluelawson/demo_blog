@@ -22,12 +22,11 @@ export async function GET(req: Request) {
 }
 
 // ユーザ新規登録処理
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   try {
     const supabase = createClient();
     const { email, password, userName } = await req.json();
-    console.log(email);
-    console.log(userName);
+
     const { error } = await supabase.auth.signUp({
       email: email,
       password: password,
@@ -60,7 +59,7 @@ export async function POST(req: Request, res: Response) {
 }
 
 // メールアドレス変更処理
-export async function PUT(req: Request, res: Response) {
+export async function PUT(req: Request) {
   try {
     const supabase = createClient();
     const { email } = await req.json();
@@ -93,27 +92,39 @@ export async function PUT(req: Request, res: Response) {
   }
 }
 
-export async function DELETE(req: Request, res: Response) {
+export async function DELETE() {
   try {
     const adminSupabase = createAdminClient();
-    const { userId } = await req.json();
-    const { error } = await adminSupabase.auth.admin.deleteUser(userId);
-
-    // 登録失敗時の処理
-    if (error) {
+    const supabase = createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error || !user) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 },
       );
+    } else {
+      const { error } = await adminSupabase.auth.admin.deleteUser(user.id);
+
+      // 登録失敗時の処理
+      if (error) {
+        return NextResponse.json(
+          { error: 'Invalid credentials' },
+          { status: 401 },
+        );
+      }
+
+      // 成功
+      const response = NextResponse.json(
+        { message: 'Delete User successful' },
+        { status: 200 },
+      );
+      return response;
+
     }
 
-    // 成功
-    const response = NextResponse.json(
-      { message: 'Delete User successful' },
-      { status: 200 },
-    );
-
-    return response;
   } catch (error) {
     console.error('Delete User error:', error);
     return NextResponse.json(

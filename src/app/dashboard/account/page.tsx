@@ -16,27 +16,18 @@ const Account = () => {
   }, []);
 
   const handleDelete = async () => {
-    const response = await fetch(`${API_URL}/api/blog/user`, {
-      method: 'GET',
+    const res = await fetch(`${API_URL}/api/blog/user`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
-    const fetchedData = await response.json();
-    if (response.ok) {
-      const userId = fetchedData?.id;
-      const res = await fetch(`${API_URL}/api/blog/user`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-        }),
-      });
-      if (res.ok) {
-        router.push('/');
-      } else {
-        console.log('Failed User Delete');
-      }
+    if (res.ok) {
+      router.push('/');
+    } else {
+      console.log('Failed User Delete');
     }
+
   };
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {

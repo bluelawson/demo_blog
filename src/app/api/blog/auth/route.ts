@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 }
 
 // ログイン
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   try {
     const supabase = createClient();
     const { email, password } = await req.json();
@@ -80,16 +80,6 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: 'Failed to log out' }, { status: 500 });
   }
 
-  // クッキーを削除するためのレスポンス設定
   const response = NextResponse.json({ message: 'Logged out successfully' });
-
-  // クッキーをクリア（アクセストークンを削除）
-  response.cookies.set('sb-access-token', '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: -1, // 即座にクッキーを無効化
-    path: '/',
-  });
-
   return response;
 }
