@@ -1,12 +1,12 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
-export function createClient() {
+function createBaseClient(supabaseUrl: string, supabaseKey: string) {
   const cookieStore = cookies();
 
   return createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         getAll() {
@@ -14,9 +14,15 @@ export function createClient() {
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            );
+            cookiesToSet.forEach(({ name, value, options }) => {
+              const updatedOptions: CookieOptions = {
+                ...options,
+                httpOnly: true, // Ensure HttpOnly is set
+                secure: true,   // Ensure Secure is set
+                sameSite: 'Strict', // Set SameSite to Strict or 'Lax', 'None' based on requirement
+              };
+              cookieStore.set(name, value, updatedOptions);
+            });
           } catch {
             // The `setAll` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
@@ -28,29 +34,10 @@ export function createClient() {
   );
 }
 
-export function createAdminClient() {
-  const cookieStore = cookies();
+export function createClient() {
+  return createBaseClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
+}
 
-  return createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SERVICE_ROLE_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            );
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
-        },
-      },
-    },
-  );
+export function createAdminClient() {
+  return createBaseClient(process.env.SUPABASE_URL!, process.env.SERVICE_ROLE_KEY!);
 }
