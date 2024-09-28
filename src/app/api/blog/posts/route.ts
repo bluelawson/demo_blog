@@ -2,12 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { createClient } from '@/utils/supabase/server';
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest) {
   const supabase = createClient();
-  const userId = req.nextUrl.searchParams.get('userId');
   let query = supabase.from('posts').select('*');
-  if (userId !== null) {
-    query = query.eq('userId', userId);
+
+  const isFilteredByCurrentUser = req.nextUrl.searchParams.get(
+    'isFilteredByCurrentUser',
+  );
+  if (isFilteredByCurrentUser) {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error || !user) {
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 },
+      );
+    }
+    query = query.eq('userId', user.id);
   }
 
   const { data, error } = await query;
@@ -15,11 +28,10 @@ export async function GET(req: NextRequest, res: NextResponse) {
   if (error) {
     return NextResponse.json(error);
   }
-
   return NextResponse.json(data, { status: 200 });
 }
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   const supabase = createClient();
   const { title, content, userId, imageUrl } = await req.json();
   const { data, error } = await supabase
@@ -35,7 +47,7 @@ export async function POST(req: Request, res: Response) {
   return NextResponse.json(data, { status: 201 });
 }
 
-export async function DELETE(req: Request, res: Response) {
+export async function DELETE(req: Request) {
   const supabase = createClient();
   const { selectedArticles: ids } = await req.json();
 

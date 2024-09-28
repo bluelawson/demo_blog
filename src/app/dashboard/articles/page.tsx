@@ -20,23 +20,16 @@ const ArticleManagement = () => {
 
   const fetchArticles = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/blog/user`, {
-        method: 'GET',
-      });
-      const fetchedData = await response.json();
-      const userId = fetchedData?.id;
-      console.log(fetchedData);
-      if (userId) {
-        const res = await fetch(`${API_URL}/api/blog/posts?userId=${userId}`, {
-          cache: 'no-store',
-        });
+      const res = await fetch(
+        `${API_URL}/api/blog/posts?isFilteredByCurrentUser=${true}`,
+        { cache: 'no-store' },
+      );
 
-        if (res.ok) {
-          const data = await res.json();
-          setArticles(data);
-        } else {
-          console.error('Failed to fetch articles');
-        }
+      if (res.ok) {
+        const data = await res.json();
+        setArticles(data);
+      } else {
+        console.error('Failed to fetch articles');
       }
     } catch (error) {
       console.error('Error fetching articles:', error);

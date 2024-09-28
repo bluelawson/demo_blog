@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/utils/supabase/server';
 
 // ユーザ情報取得処理
-export async function GET(req: Request) {
+export async function GET() {
   // Supabase にクッキーから取得したトークンを渡してユーザーを取得
   const supabase = createClient();
   const {
@@ -122,9 +122,7 @@ export async function DELETE() {
         { status: 200 },
       );
       return response;
-
     }
-
   } catch (error) {
     console.error('Delete User error:', error);
     return NextResponse.json(

@@ -71,7 +71,7 @@ export async function POST(req: Request) {
 }
 
 // ログアウト
-export async function DELETE(req: Request) {
+export async function DELETE() {
   const supabase = createClient();
   // Supabaseでのサインアウト処理
   const { error } = await supabase.auth.signOut();

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { createClient } from '@/utils/supabase/server';
 
-export async function GET(req: Request, res: Response) {
+export async function GET(req: Request) {
   const supabase = createClient();
   const id = req.url.split('/blog/posts/')[1];
 
@@ -19,7 +19,7 @@ export async function GET(req: Request, res: Response) {
   return NextResponse.json(data, { status: 200 });
 }
 
-export async function PUT(req: Request, res: Response) {
+export async function PUT(req: Request) {
   const supabase = createClient();
   const id = req.url.split('/blog/posts/')[1];
 
@@ -39,7 +39,7 @@ export async function PUT(req: Request, res: Response) {
   return NextResponse.json(data, { status: 200 });
 }
 
-export async function DELETE(req: Request, res: Response) {
+export async function DELETE(req: Request) {
   const supabase = createClient();
   const id = req.url.split('/blog/posts/')[1];
 
