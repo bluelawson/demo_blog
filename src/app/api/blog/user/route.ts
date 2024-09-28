@@ -1,26 +1,15 @@
-import { cookies } from 'next/headers'; // クッキーを取得するためのNext.jsのヘルパー
 import { NextResponse } from 'next/server';
 
-import { createClient } from '@/utils/supabase/server';
-import { supabase, adminSupabase } from '@/utils/supabaseClient';
+import { createClient, createAdminClient } from '@/utils/supabase/server';
 
+// ユーザ情報取得処理
 export async function GET(req: Request) {
-  const cookieStore = cookies();
-  const access_token = cookieStore.get('sb-access-token')?.value;
-
-  // トークンがなければエラーを返す
-  if (!access_token) {
-    return NextResponse.json(
-      { error: 'No access token found' },
-      { status: 401 },
-    );
-  }
-
   // Supabase にクッキーから取得したトークンを渡してユーザーを取得
+  const supabase = createClient();
   const {
     data: { user },
     error,
-  } = await supabase.auth.getUser(access_token);
+  } = await supabase.auth.getUser();
 
   if (error || !user) {
     return NextResponse.json(
@@ -32,9 +21,12 @@ export async function GET(req: Request) {
   return NextResponse.json(user, { status: 200 });
 }
 
+// ユーザ新規登録処理
 export async function POST(req: Request, res: Response) {
   try {
+    const supabase = createClient();
     const { email, password, userName } = await req.json();
+    console.log(email);
     console.log(userName);
     const { error } = await supabase.auth.signUp({
       email: email,
@@ -70,9 +62,11 @@ export async function POST(req: Request, res: Response) {
 // メールアドレス変更処理
 export async function PUT(req: Request, res: Response) {
   try {
-    const supabaseServer = createClient();
+    const supabase = createClient();
     const { email } = await req.json();
-    const { error } = await supabaseServer.auth.updateUser(email);
+    const { error } = await supabase.auth.updateUser({
+      email: email,
+    });
 
     // 登録失敗時の処理
     if (error) {
@@ -101,6 +95,7 @@ export async function PUT(req: Request, res: Response) {
 
 export async function DELETE(req: Request, res: Response) {
   try {
+    const adminSupabase = createAdminClient();
     const { userId } = await req.json();
     const { error } = await adminSupabase.auth.admin.deleteUser(userId);
 

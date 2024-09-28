@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { supabase } from '@/utils/supabaseClient';
+import { createClient } from '@/utils/supabase/server';
 
 export async function GET(req: NextRequest, res: NextResponse) {
+  const supabase = createClient();
   const userId = req.nextUrl.searchParams.get('userId');
   let query = supabase.from('posts').select('*');
   if (userId !== null) {
@@ -19,6 +20,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
 }
 
 export async function POST(req: Request, res: Response) {
+  const supabase = createClient();
   const { title, content, userId, imageUrl } = await req.json();
   const { data, error } = await supabase
     .from('posts')
@@ -34,6 +36,7 @@ export async function POST(req: Request, res: Response) {
 }
 
 export async function DELETE(req: Request, res: Response) {
+  const supabase = createClient();
   const { selectedArticles: ids } = await req.json();
 
   const { error: deleteError } = await supabase

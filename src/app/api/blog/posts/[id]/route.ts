@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 
-import { supabase } from '@/utils/supabaseClient';
+import { createClient } from '@/utils/supabase/server';
 
 export async function GET(req: Request, res: Response) {
+  const supabase = createClient();
   const id = req.url.split('/blog/posts/')[1];
 
   const { data, error } = await supabase
@@ -19,6 +20,7 @@ export async function GET(req: Request, res: Response) {
 }
 
 export async function PUT(req: Request, res: Response) {
+  const supabase = createClient();
   const id = req.url.split('/blog/posts/')[1];
 
   // リクエストボディから更新するデータを取得
@@ -38,6 +40,7 @@ export async function PUT(req: Request, res: Response) {
 }
 
 export async function DELETE(req: Request, res: Response) {
+  const supabase = createClient();
   const id = req.url.split('/blog/posts/')[1];
 
   const { error: deleteError } = await supabase
