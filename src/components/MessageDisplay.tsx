@@ -6,14 +6,14 @@ import { useMessage } from '@/context/MessageContext';
 
 const MessageDisplay = () => {
   const { errorMessage, snackbarMessage, clearErrorMessage } = useMessage();
-  const pathname = usePathname(); // 現在のパスを取得
-  const prevPathname = useRef(pathname); // 前回のパスを保持するためにuseRefを使用
+  const pathname = usePathname();
+  const prevPathname = useRef(pathname);
 
   // パスが変更されたときにエラーメッセージをクリアする
   useEffect(() => {
     if (prevPathname.current !== pathname) {
-      clearErrorMessage(); // エラーメッセージをクリア
-      prevPathname.current = pathname; // パスが変わったら更新
+      clearErrorMessage();
+      prevPathname.current = pathname; //前回のパスを記録しておく
     }
   }, [pathname, clearErrorMessage]);
 
