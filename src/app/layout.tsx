@@ -1,8 +1,9 @@
 import './globals.css';
 import { Suspense } from 'react';
 
-import Loading from '../components/Loading';
 import { MessageProvider } from '@/context/MessageContext';
+
+import Loading from '../components/Loading';
 import MessageDisplay from '../components/MessageDisplay';
 
 import Footer from './Footer';
