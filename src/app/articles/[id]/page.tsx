@@ -18,7 +18,7 @@ const Article = async ({ params }: { params: { id: string } }) => {
 
   return (
     <div className="flex flex-col max-w-3xl p-5 mx-auto">
-      <img
+      <Image
         src={detailArticle.imageUrl}
         alt={`no image`}
         className="object-cover"
