@@ -1,4 +1,5 @@
-import * as TablerIcons from '@tabler/icons-react'; // Tabler Icons をすべてインポート
+// Tabler Icons をサーバサイドで使用する場合はあらかじめすべてインポートしておかないと取得できなくてエラーになる
+import * as TablerIcons from '@tabler/icons-react';
 import React from 'react';
 
 type CrudType = 'create' | 'update' | 'delete';
