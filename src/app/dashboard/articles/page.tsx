@@ -6,7 +6,6 @@ import ManagedArticleList from '@/components/ManagedArticleList';
 import { useParamsContext } from '@/context/ParamsContext';
 import { Article } from '@/types';
 import { API_URL } from '@/utils/constants';
-import { supabase } from '@/utils/supabaseClient';
 
 const ArticleManagement = () => {
   const [articles, setArticles] = useState<Article[]>([]);

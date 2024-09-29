@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 
 import { ButtonFrame, Button, Input, FormFrame } from '@/components/form';
 import { API_URL } from '@/utils/constants';
-import { supabase } from '@/utils/supabaseClient';
 
 const Account = () => {
   const [email, setEmail] = useState('');
@@ -27,25 +26,10 @@ const Account = () => {
     } else {
       console.log('Failed User Delete');
     }
-
   };
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // サーバサイドに移動したいが、方法がわからないので断念
-    // const { error } = await supabase.auth.updateUser({
-    //   email: email,
-    // });
-
-    // if (error) {
-    //   console.error('Error updating account:', error.message);
-    // } else {
-    //   setMessage(
-    //     '変更前・変更後のメールアドレス宛に本人確認のリンクを送信しました。',
-    //   );
-    //   router.push('/dashboard/account');
-    // }
-
     const res = await fetch(`${API_URL}/api/blog/user`, {
       method: 'PUT',
       headers: {

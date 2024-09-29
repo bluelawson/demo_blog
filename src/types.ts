@@ -11,3 +11,8 @@ export type Menu = {
   name: string;
   link: string;
 };
+
+export type User = {
+  email: string;
+  name: string;
+};

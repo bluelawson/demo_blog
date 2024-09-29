@@ -1,5 +1,5 @@
 'use client';
-import { User } from '@supabase/supabase-js';
+import { User } from '@/types';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -72,9 +72,7 @@ const Header = () => {
           {user ? (
             <>
               <span className="px-3 py-3 text-xs rounded-md bg-white-300">
-                {user
-                  ? `こんにちは、${user?.user_metadata.user_name} さん`
-                  : null}
+                {user ? `こんにちは、${user?.name} さん` : null}
               </span>
               <NavButton
                 href="/dashboard/articles"

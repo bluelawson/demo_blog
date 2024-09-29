@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { createClient, createAdminClient } from '@/utils/supabase/server';
+import { User } from '@/types';
 
 // ユーザ情報取得処理
 export async function GET() {
@@ -17,8 +18,11 @@ export async function GET() {
       { status: 401 },
     );
   }
-
-  return NextResponse.json(user, { status: 200 });
+  const response: User = {
+    email: user.email ?? '',
+    name: user.user_metadata.user_name,
+  };
+  return NextResponse.json(response, { status: 200 });
 }
 
 // ユーザ新規登録処理
