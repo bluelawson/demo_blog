@@ -11,14 +11,14 @@ import {
   ImageUploader,
 } from '@/components/form';
 import Loading from '@/components/Loading';
-import { useParamsContext } from '@/context/ParamsContext';
+import { useMessage } from '@/context/MessageContext';
 
 const CreateBlogPage = () => {
   const router = useRouter();
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const { setMessage } = useParamsContext();
+  const { showErrorMessage, showSnackbarMessage } = useMessage();
   const [uploadFile, setUploadFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -48,11 +48,6 @@ const CreateBlogPage = () => {
       imageUrl = path;
     }
 
-    const res = await fetch(`${API_URL}/api/blog/user`, {
-      method: 'GET',
-    });
-    const fetchedData = await res.json();
-    const userId = fetchedData?.id;
     const response = await fetch(`${API_URL}/api/blog/posts`, {
       method: 'POST',
       headers: {
@@ -61,16 +56,15 @@ const CreateBlogPage = () => {
       body: JSON.stringify({
         title,
         content,
-        userId,
         imageUrl: imageUrl,
       }),
     });
     if (response.ok) {
-      setMessage('投稿が完了しました！');
+      showSnackbarMessage('投稿が完了しました！');
       router.push(`/dashboard/articles`);
       router.refresh();
     } else {
-      console.error('投稿に失敗しました');
+      showErrorMessage('投稿に失敗しました');
     }
     setLoading(false);
   };

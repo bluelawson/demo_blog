@@ -3,19 +3,18 @@ import React, { useState, useEffect } from 'react';
 
 import Loading from '@/components/Loading';
 import ManagedArticleList from '@/components/ManagedArticleList';
-import { useParamsContext } from '@/context/ParamsContext';
+import { useMessage } from '@/context/MessageContext';
 import { Article } from '@/types';
 import { API_URL } from '@/utils/constants';
 
 const ArticleManagement = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const { message, setMessage } = useParamsContext();
+  const { showErrorMessage, showSnackbarMessage } = useMessage();
 
   useEffect(() => {
-    displayMessage();
     fetchArticles();
-  }, [message]);
+  }, []);
 
   const fetchArticles = async () => {
     try {
@@ -34,16 +33,6 @@ const ArticleManagement = () => {
       console.error('Error fetching articles:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const displayMessage = async () => {
-    if (message) {
-      // 2秒後にメッセージをリセット
-      const timer = setTimeout(() => {
-        setMessage('');
-      }, 2000);
-      return () => clearTimeout(timer); // クリーンアップ
     }
   };
 
@@ -80,9 +69,9 @@ const ArticleManagement = () => {
       body: JSON.stringify({ selectedArticles }),
     });
     if (response.ok) {
-      setMessage('削除が完了しました！');
+      showSnackbarMessage('削除が完了しました！');
     } else {
-      console.error('削除に失敗しました');
+      showErrorMessage('削除に失敗しました');
     }
   };
 
@@ -92,11 +81,6 @@ const ArticleManagement = () => {
 
   return (
     <>
-      {message && (
-        <div className="fixed top-0 left-0 z-50 w-full py-2 text-center text-white bg-green-500">
-          {message}
-        </div>
-      )}
       <ManagedArticleList
         articles={articles}
         handleArticleSelection={handleArticleSelection}

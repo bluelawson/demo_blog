@@ -1,10 +1,10 @@
 'use client';
-import { User } from '@/types';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import { NavButton } from '@/components/form';
+import { User } from '@/types';
 import { API_URL } from '@/utils/constants';
 
 import Loading from '../components/Loading';

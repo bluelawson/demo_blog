@@ -33,18 +33,30 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: Request) {
   const supabase = createClient();
-  const { title, content, userId, imageUrl } = await req.json();
-  const { data, error } = await supabase
-    .from('posts')
-    .insert([
-      { title, content, createdAt: new Date().toISOString(), userId, imageUrl },
+  const { title, content, imageUrl } = await req.json();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error || !user) {
+    return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+  } else {
+    const { data, error } = await supabase.from('posts').insert([
+      {
+        title,
+        content,
+        createdAt: new Date().toISOString(),
+        userId: user.id,
+        imageUrl,
+      },
     ]);
 
-  if (error) {
-    return NextResponse.json(error);
-  }
+    if (error) {
+      return NextResponse.json(error);
+    }
 
-  return NextResponse.json(data, { status: 201 });
+    return NextResponse.json(data, { status: 201 });
+  }
 }
 
 export async function DELETE(req: Request) {

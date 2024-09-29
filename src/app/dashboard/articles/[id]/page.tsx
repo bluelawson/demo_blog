@@ -11,7 +11,7 @@ import {
   ImageUploader,
 } from '@/components/form';
 import Loading from '@/components/Loading';
-import { useParamsContext } from '@/context/ParamsContext';
+import { useMessage } from '@/context/MessageContext';
 
 const EditArticle = ({ params }: { params: { id: string } }) => {
   const [title, setTitle] = useState('');
@@ -19,7 +19,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
   const [imageUrl, setImageUrl] = useState('');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(true);
-  const { setMessage } = useParamsContext();
+  const { showErrorMessage, showSnackbarMessage } = useMessage();
 
   useEffect(() => {
     fetchArticles();
@@ -60,10 +60,10 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
       method: 'DELETE',
     });
     if (response.ok) {
-      setMessage('削除が完了しました！');
+      showSnackbarMessage('削除が完了しました！');
       router.push(`/dashboard/articles`);
     } else {
-      console.error('削除に失敗しました');
+      showErrorMessage('削除に失敗しました');
     }
   };
 
@@ -109,10 +109,10 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
     });
 
     if (response.ok) {
-      setMessage('更新が完了しました！');
+      showSnackbarMessage('更新が完了しました！');
       router.push(`/dashboard/articles`);
     } else {
-      console.error('更新に失敗しました');
+      showErrorMessage('更新に失敗しました');
     }
   };
 

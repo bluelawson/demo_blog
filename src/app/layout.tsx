@@ -2,7 +2,8 @@ import './globals.css';
 import { Suspense } from 'react';
 
 import Loading from '../components/Loading';
-import { ParamsProvider } from '../context/ParamsContext';
+import { MessageProvider } from '@/context/MessageContext';
+import MessageDisplay from '../components/MessageDisplay';
 
 import Footer from './Footer';
 import Header from './Header';
@@ -26,7 +27,10 @@ export default function RootLayout({
           <Header />
           <main className="flex-grow">
             <Suspense fallback={<Loading />}>
-              <ParamsProvider>{children}</ParamsProvider>
+              <MessageProvider>
+                <MessageDisplay />
+                {children}
+              </MessageProvider>
             </Suspense>
           </main>
           <Footer />
