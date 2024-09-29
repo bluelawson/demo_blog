@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
@@ -14,7 +13,7 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
       className="overflow-hidden transition-shadow duration-300 rounded-lg shadow-md bg-slate-600 hover:shadow-lg"
       key={article.id}
     >
-      <Image
+      <img
         src={article.imageUrl ?? ''}
         alt={`no image`}
         className="object-cover w-full h-48"

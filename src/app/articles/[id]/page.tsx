@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import React from 'react';
 
@@ -18,7 +17,7 @@ const Article = async ({ params }: { params: { id: string } }) => {
 
   return (
     <div className="flex flex-col max-w-3xl p-5 mx-auto">
-      <Image
+      <img
         src={detailArticle.imageUrl}
         alt={`no image`}
         className="object-cover"

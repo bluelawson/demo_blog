@@ -1,5 +1,4 @@
 'use client';
-import Image from 'next/image';
 import React, { useState, useRef } from 'react';
 
 type ImageUploaderProps = {
@@ -65,7 +64,7 @@ export default function ImageUploader({
           >
             ×
           </button>
-          <Image
+          <img
             src={imageUrl}
             alt="uploaded"
             className="object-cover w-full h-48 mb-4 rounded"
