@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-import { createClient, createAdminClient } from '@/utils/supabase/server';
 import { User } from '@/types';
+import { createClient, createAdminClient } from '@/utils/supabase/server';
 
 // ユーザ情報取得処理
 export async function GET() {
