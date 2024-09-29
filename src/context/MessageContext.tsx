@@ -25,7 +25,7 @@ export const MessageProvider = ({ children }: { children: ReactNode }) => {
   const showSnackbarMessage = (message: string) => {
     setSnackbarMessage(message);
     setTimeout(() => {
-      setSnackbarMessage(null); // 3秒後に自動でスナックバーを消す
+      setSnackbarMessage(null);
     }, 3000);
   };
 
