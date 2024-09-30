@@ -71,7 +71,7 @@ const ArticleManagement = () => {
     if (response.ok) {
       showSnackbarMessage('削除が完了しました！');
     } else {
-      showErrorMessage('削除に失敗しましたorz');
+      showErrorMessage('削除に失敗しました');
     }
     await fetchArticles();
   };
