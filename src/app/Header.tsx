@@ -4,45 +4,61 @@ import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import { NavButton } from '@/components/form';
+import Loading from '@/components/Loading';
+import { useMessage } from '@/context/MessageContext';
 import { User } from '@/types';
 import { API_URL } from '@/utils/constants';
-
-import Loading from '../components/Loading';
 
 const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const { showErrorMessage, showSnackbarMessage } = useMessage();
 
   useEffect(() => {
     const fetchData = async () => {
-      await getUserData();
-      setLoading(false);
+      try {
+        await getUserData();
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, [pathname]);
 
-  const handleLogout = async () => {
-    await fetch(`${API_URL}/api/blog/auth`, {
-      method: 'DELETE',
-    });
-    const result = await getUserData();
-    if (!result) {
-      router.push('/auth/logout');
+  const getUserData = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/blog/user`, {
+        method: 'GET',
+      });
+      if (!response.ok) {
+        setUser(null);
+        return null;
+      }
+      const fetchedData = await response.json();
+      setUser(fetchedData);
+      return fetchedData;
+    } catch (error) {
+      console.error(error);
+      setUser(null);
+      throw error;
     }
   };
 
-  const getUserData = async () => {
-    const response = await fetch(`${API_URL}/api/blog/user`, {
-      method: 'GET',
-    });
-    const fetchedData = await response.json();
-    if (response.ok) {
-      setUser(fetchedData);
-      return fetchedData;
-    } else {
-      setUser(null);
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_URL}/api/blog/auth`, {
+        method: 'DELETE',
+      });
+      const response = await getUserData();
+      if (!response) {
+        router.push('/auth/logout');
+        showSnackbarMessage('ログアウトに成功しました！');
+      }
+    } catch (error) {
+      console.error('Logout failed', error);
+      showErrorMessage('ログアウトに失敗しました');
       return;
     }
   };
@@ -55,20 +71,6 @@ const Header = () => {
       <div>
         {loading && <Loading header />}
         <nav className="text-sm" hidden={loading}>
-          {!user ? (
-            <>
-              <NavButton
-                href="/auth/login"
-                iconClass="i-tabler-key"
-                text={'ログイン'}
-              />
-              <NavButton
-                href="/auth/signUp"
-                iconClass="i-tabler-user-plus"
-                text={'新規登録'}
-              />
-            </>
-          ) : null}
           {user ? (
             <>
               <span className="px-3 py-3 text-xs rounded-md bg-white-300">
@@ -85,7 +87,20 @@ const Header = () => {
                 text={'ログアウト'}
               />
             </>
-          ) : null}
+          ) : (
+            <>
+              <NavButton
+                href="/auth/login"
+                iconClass="i-tabler-key"
+                text={'ログイン'}
+              />
+              <NavButton
+                href="/auth/signUp"
+                iconClass="i-tabler-user-plus"
+                text={'新規登録'}
+              />
+            </>
+          )}
         </nav>
       </div>
     </header>

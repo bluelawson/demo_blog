@@ -24,18 +24,18 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className="container mx-auto bg-slate-700 text-slate-50">
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-grow">
-            <Suspense fallback={<Loading />}>
-              <MessageProvider>
+        <MessageProvider>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow">
+              <Suspense fallback={<Loading />}>
                 <MessageDisplay />
                 {children}
-              </MessageProvider>
-            </Suspense>
-          </main>
-          <Footer />
-        </div>
+              </Suspense>
+            </main>
+            <Footer />
+          </div>
+        </MessageProvider>
       </body>
     </html>
   );
