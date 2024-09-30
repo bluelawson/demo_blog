@@ -4,7 +4,7 @@
 npm run dev
 ```
 
-ブラウザで [localhost:3000](http://localhost:3000) からアクセス可能
+- [localhost:3000](http://localhost:3000)
 
 ## 本番環境
 
