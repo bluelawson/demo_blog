@@ -73,6 +73,7 @@ const ArticleManagement = () => {
     } else {
       showErrorMessage('削除に失敗しました');
     }
+    await fetchArticles();
   };
 
   if (loading) {

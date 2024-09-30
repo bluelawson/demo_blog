@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        path: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/demo/${data.path}`,
+        path: `${process.env.SUPABASE_URL}/storage/v1/object/demo/${data.path}`,
       },
       { status: 200 },
     );
