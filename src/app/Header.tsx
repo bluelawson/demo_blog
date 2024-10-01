@@ -13,23 +13,20 @@ const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const { showErrorMessage, showSnackbarMessage } = useMessage();
 
   // 開発環境で、npm run dev直後useEffectが発火しない事象があるが、そのままリロードすれば治る。
   // 本番環境では正常に動作するためこのままとする
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        await getUserData();
-      } finally {
-        setLoading(false);
-      }
+      await getUserData();
     };
     fetchData();
   }, [pathname]);
 
   const getUserData = async () => {
+    setLoading(true);
     try {
       const response = await fetch(`${API_URL}/api/blog/user`, {
         method: 'GET',
@@ -45,6 +42,8 @@ const Header = () => {
       console.error(error);
       setUser(null);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 

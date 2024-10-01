@@ -9,10 +9,11 @@ import { API_URL } from '@/utils/constants';
 
 const ArticleManagement = () => {
   const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { showErrorMessage, showSnackbarMessage } = useMessage();
 
   const fetchArticles = useCallback(async () => {
+    setLoading(true);
     try {
       const response = await fetch(
         `${API_URL}/api/blog/posts?isFilteredByCurrentUser=${true}`,
@@ -26,16 +27,14 @@ const ArticleManagement = () => {
     } catch (error) {
       console.error(error);
       showErrorMessage('記事情報の取得に失敗しました');
+    } finally {
+      setLoading(false);
     }
   }, [showErrorMessage]);
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        await fetchArticles();
-      } finally {
-        setLoading(false);
-      }
+      await fetchArticles();
     };
     fetchData();
   }, [fetchArticles]);
