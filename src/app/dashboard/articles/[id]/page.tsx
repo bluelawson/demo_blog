@@ -12,6 +12,7 @@ import {
 } from '@/components/form';
 import Loading from '@/components/Loading';
 import { useMessage } from '@/context/MessageContext';
+import { API_URL } from '@/utils/constants';
 
 const EditArticle = ({ params }: { params: { id: string } }) => {
   const [title, setTitle] = useState('');
@@ -27,7 +28,6 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
 
   const fetchArticles = async () => {
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL;
       const res = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
         next: {
           revalidate: 10,
@@ -55,7 +55,6 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
 
   const handleDelete = async () => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
     const response = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
       method: 'DELETE',
     });
@@ -69,8 +68,6 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
     let imageUrl = null;
     // 画像をSupabase storageにアップロードする
     if (uploadFile) {

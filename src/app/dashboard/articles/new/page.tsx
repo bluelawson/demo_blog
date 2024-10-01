@@ -12,7 +12,7 @@ import {
 } from '@/components/form';
 import Loading from '@/components/Loading';
 import { useMessage } from '@/context/MessageContext';
-
+import { API_URL } from '@/utils/constants';
 const CreateBlogPage = () => {
   const router = useRouter();
   const [title, setTitle] = useState<string>('');
@@ -24,7 +24,6 @@ const CreateBlogPage = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
     let imageUrl = null;
     // 画像をSupabase storageにアップロードする
     if (uploadFile) {
