@@ -68,7 +68,6 @@ const CreateBlogPage = () => {
       }
       showSnackbarMessage('投稿が完了しました！');
       router.push(`/dashboard/articles`);
-      router.refresh();
     } catch (error) {
       console.error(error);
       showErrorMessage('投稿に失敗しました');
