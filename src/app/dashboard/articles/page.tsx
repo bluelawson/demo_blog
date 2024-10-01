@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import Loading from '@/components/Loading';
 import ManagedArticleList from '@/components/ManagedArticleList';
@@ -9,32 +9,35 @@ import { API_URL } from '@/utils/constants';
 
 const ArticleManagement = () => {
   const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { showErrorMessage, showSnackbarMessage } = useMessage();
 
-  useEffect(() => {
-    fetchArticles();
-  }, []);
-
-  const fetchArticles = async () => {
+  const fetchArticles = useCallback(async () => {
+    setLoading(true);
     try {
-      const res = await fetch(
+      const response = await fetch(
         `${API_URL}/api/blog/posts?isFilteredByCurrentUser=${true}`,
         { cache: 'no-store' },
       );
-
-      if (res.ok) {
-        const data = await res.json();
-        setArticles(data);
-      } else {
-        console.error('Failed to fetch articles');
+      if (!response.ok) {
+        throw new Error(`Status Code is ${response.status}`);
       }
+      const data = await response.json();
+      setArticles(data);
     } catch (error) {
-      console.error('Error fetching articles:', error);
+      console.error(error);
+      showErrorMessage('記事情報の取得に失敗しました');
     } finally {
       setLoading(false);
     }
-  };
+  }, [showErrorMessage]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchArticles();
+    };
+    fetchData();
+  }, [fetchArticles]);
 
   const [selectedArticles, setSelectedArticles] = useState<string[]>([]);
   const [areAllArticlesSelected, setAreAllArticlesSelected] =
@@ -60,20 +63,31 @@ const ArticleManagement = () => {
   };
 
   const handleDelete = async () => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL;
-    const response = await fetch(`${API_URL}/api/blog/posts`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ selectedArticles }),
-    });
-    if (response.ok) {
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/blog/posts`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ selectedArticles }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Status Code is ${response.status}`);
+      }
       showSnackbarMessage('削除が完了しました！');
-    } else {
+
+      await fetchArticles();
+      setSelectedArticles([]);
+      setAreAllArticlesSelected(false);
+    } catch (error) {
+      console.error(error);
       showErrorMessage('削除に失敗しました');
+      return;
+    } finally {
+      setLoading(false);
     }
-    await fetchArticles();
   };
 
   if (loading) {

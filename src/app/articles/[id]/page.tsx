@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation';
 import React from 'react';
 
+import { API_URL } from '@/utils/constants';
+
 const Article = async ({ params }: { params: { id: string } }) => {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
   const res = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
     next: {
       revalidate: 10,
