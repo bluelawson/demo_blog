@@ -16,6 +16,8 @@ const Header = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const { showErrorMessage, showSnackbarMessage } = useMessage();
 
+  // 開発環境で、npm run dev直後useEffectが発火しない事象があるが、そのままリロードすれば治る。
+  // 本番環境では正常に動作するためこのままとする
   useEffect(() => {
     const fetchData = async () => {
       try {
