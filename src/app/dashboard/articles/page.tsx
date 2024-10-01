@@ -74,6 +74,8 @@ const ArticleManagement = () => {
       showErrorMessage('削除に失敗しました');
     }
     await fetchArticles();
+    setSelectedArticles([]);
+    setAreAllArticlesSelected(false);
   };
 
   if (loading) {
