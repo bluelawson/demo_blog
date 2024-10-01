@@ -63,6 +63,7 @@ const ArticleManagement = () => {
   };
 
   const handleDelete = async () => {
+    setLoading(true);
     try {
       const response = await fetch(`${API_URL}/api/blog/posts`, {
         method: 'DELETE',
@@ -84,6 +85,8 @@ const ArticleManagement = () => {
       console.error(error);
       showErrorMessage('削除に失敗しました');
       return;
+    } finally {
+      setLoading(false);
     }
   };
 
