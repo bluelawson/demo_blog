@@ -13,6 +13,7 @@ import {
 import Loading from '@/components/Loading';
 import { useMessage } from '@/context/MessageContext';
 import { API_URL } from '@/utils/constants';
+
 const CreateBlogPage = () => {
   const router = useRouter();
   const [title, setTitle] = useState<string>('');
@@ -31,41 +32,49 @@ const CreateBlogPage = () => {
       formData.append('file', uploadFile);
       formData.append('fileName', uploadFile.name);
 
-      const response = await fetch(`${API_URL}/api/blog/upload`, {
-        method: 'POST',
-        body: formData,
-      });
+      try {
+        const response = await fetch(`${API_URL}/api/blog/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+        if (!response.ok) {
+          throw new Error(`Status Code is ${response.status}`);
+        }
 
-      if (!response.ok) {
-        const error = await response.json();
-        console.error('Image upload error:', error.error);
+        const { path } = await response.json();
+        imageUrl = path;
+      } catch (error) {
+        console.error(error);
+        showErrorMessage('画像のアップロードに失敗しました');
         setLoading(false);
         return;
       }
-
-      const { path } = await response.json();
-      imageUrl = path;
     }
 
-    const response = await fetch(`${API_URL}/api/blog/posts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        title,
-        content,
-        imageUrl: imageUrl,
-      }),
-    });
-    if (response.ok) {
+    try {
+      const response = await fetch(`${API_URL}/api/blog/posts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          content,
+          imageUrl: imageUrl,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`Status Code is ${response.status}`);
+      }
       showSnackbarMessage('投稿が完了しました！');
       router.push(`/dashboard/articles`);
       router.refresh();
-    } else {
+    } catch (error) {
+      console.error(error);
       showErrorMessage('投稿に失敗しました');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   if (loading) {
