@@ -59,7 +59,7 @@ const Header = () => {
         showSnackbarMessage('ログアウトに成功しました！');
       }
     } catch (error) {
-      console.error('Logout failed', error);
+      console.error(error);
       showErrorMessage('ログアウトに失敗しました');
       return;
     }
