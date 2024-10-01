@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import Loading from '@/components/Loading';
 import ManagedArticleList from '@/components/ManagedArticleList';
@@ -12,29 +12,33 @@ const ArticleManagement = () => {
   const [loading, setLoading] = useState(true);
   const { showErrorMessage, showSnackbarMessage } = useMessage();
 
-  useEffect(() => {
-    fetchArticles();
-  }, []);
-
-  const fetchArticles = async () => {
+  const fetchArticles = useCallback(async () => {
     try {
-      const res = await fetch(
+      const response = await fetch(
         `${API_URL}/api/blog/posts?isFilteredByCurrentUser=${true}`,
         { cache: 'no-store' },
       );
-
-      if (res.ok) {
-        const data = await res.json();
-        setArticles(data);
-      } else {
-        console.error('Failed to fetch articles');
+      if (!response.ok) {
+        throw new Error(`Status Code is ${response.status}`);
       }
+      const data = await response.json();
+      setArticles(data);
     } catch (error) {
-      console.error('Error fetching articles:', error);
-    } finally {
-      setLoading(false);
+      console.error(error);
+      showErrorMessage('記事情報の取得に失敗しました');
     }
-  };
+  }, [showErrorMessage]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await fetchArticles();
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [fetchArticles]);
 
   const [selectedArticles, setSelectedArticles] = useState<string[]>([]);
   const [areAllArticlesSelected, setAreAllArticlesSelected] =
