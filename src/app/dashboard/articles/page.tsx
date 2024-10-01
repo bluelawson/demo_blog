@@ -64,21 +64,28 @@ const ArticleManagement = () => {
   };
 
   const handleDelete = async () => {
-    const response = await fetch(`${API_URL}/api/blog/posts`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ selectedArticles }),
-    });
-    if (response.ok) {
+    try {
+      const response = await fetch(`${API_URL}/api/blog/posts`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ selectedArticles }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Status Code is ${response.status}`);
+      }
       showSnackbarMessage('削除が完了しました！');
-    } else {
+
+      await fetchArticles();
+      setSelectedArticles([]);
+      setAreAllArticlesSelected(false);
+    } catch (error) {
+      console.error(error);
       showErrorMessage('削除に失敗しました');
+      return;
     }
-    await fetchArticles();
-    setSelectedArticles([]);
-    setAreAllArticlesSelected(false);
   };
 
   if (loading) {
