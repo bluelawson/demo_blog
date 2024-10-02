@@ -48,6 +48,7 @@ const Header = () => {
   };
 
   const handleLogout = async () => {
+    setLoading(true);
     try {
       await fetch(`${API_URL}/api/blog/auth`, {
         method: 'DELETE',
@@ -60,6 +61,8 @@ const Header = () => {
       console.error(error);
       showErrorMessage('ログアウトに失敗しました');
       return;
+    } finally {
+      setLoading(false);
     }
   };
 
