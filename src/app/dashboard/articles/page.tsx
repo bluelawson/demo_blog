@@ -63,6 +63,10 @@ const ArticleManagement = () => {
   };
 
   const handleDelete = async () => {
+    const confirmed = window.confirm('本当にアカウントを削除しますか？');
+    if (!confirmed) {
+      return;
+    }
     setLoading(true);
     try {
       const response = await fetch(`${API_URL}/api/blog/posts`, {
