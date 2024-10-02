@@ -116,7 +116,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
   };
 
   const handleDelete = async () => {
-    const confirmed = window.confirm('本当にアカウントを削除しますか？');
+    const confirmed = window.confirm('本当に記事を削除しますか？');
     if (!confirmed) {
       return;
     }
