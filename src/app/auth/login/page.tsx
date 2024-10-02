@@ -67,6 +67,9 @@ const Login = () => {
           <Button type="submit" crudType="update" text="ログイン" />
         </ButtonFrame>
       </FormFrame>
+      <div>ゲストアカウント</div>
+      <div>email: guest@demoblog.site</div>
+      <div>password: guest12345</div>
     </>
   );
 };
