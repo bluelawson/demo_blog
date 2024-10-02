@@ -35,7 +35,9 @@ const Login = () => {
       router.push('/');
     } catch (error) {
       console.error(error);
-      showErrorMessage('ログインに失敗しました');
+      showErrorMessage(
+        'ログインに失敗しました　 IDとパスワードを確認してください',
+      );
       return;
     } finally {
       setLoading(false);

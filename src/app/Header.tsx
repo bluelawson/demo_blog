@@ -55,7 +55,6 @@ const Header = () => {
       const response = await getUserData();
       if (!response) {
         router.push('/auth/logout');
-        showSnackbarMessage('ログアウトに成功しました！');
       }
     } catch (error) {
       console.error(error);
