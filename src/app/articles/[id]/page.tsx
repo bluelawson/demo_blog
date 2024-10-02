@@ -4,14 +4,26 @@ import React from 'react';
 import { API_URL } from '@/utils/constants';
 
 const Article = async ({ params }: { params: { id: string } }) => {
-  const res = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
-    next: {
-      revalidate: 10,
-    },
-  });
-
-  const detailArticle = await res.json();
-  if (!detailArticle) {
+  let detailArticle: {
+    title: string;
+    content: string;
+    imageUrl?: string;
+  } | null = null;
+  try {
+    const response = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
+      next: {
+        revalidate: 10,
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Status Code is ${response.status}`);
+    }
+    detailArticle = await response.json();
+    if (!detailArticle) {
+      throw new Error(`article not found`);
+    }
+  } catch (error) {
+    console.error(error);
     notFound();
   }
 
