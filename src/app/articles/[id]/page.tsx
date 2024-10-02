@@ -11,7 +11,6 @@ const Article = async ({ params }: { params: { id: string } }) => {
   });
 
   const detailArticle = await res.json();
-  console.log(detailArticle.content);
   if (!detailArticle) {
     notFound();
   }
