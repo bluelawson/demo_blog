@@ -14,6 +14,7 @@ export default function Input({ label, type, value, onChange }: InputProps) {
       <input
         type={type ?? 'text'}
         value={value}
+        minLength={type === 'password' ? 6 : 0}
         className="w-4/6 px-2 py-1 mx-4 border rounded border-slate-400 bg-slate-700"
         onChange={onChange}
         required
