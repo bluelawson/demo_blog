@@ -43,7 +43,7 @@ export async function POST(req: Request) {
         { status: 500 },
       );
     }
-    console.log(users.users);
+
     // メールアドレスが既に登録されているか確認
     const existingUser = users.users.find((user: any) => user.email === email);
 
