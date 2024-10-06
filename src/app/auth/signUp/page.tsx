@@ -17,6 +17,7 @@ const SignUp = () => {
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    let status = 200;
     try {
       const response = await fetch(`${API_URL}/api/blog/user`, {
         method: 'POST',
@@ -30,12 +31,17 @@ const SignUp = () => {
         }),
       });
       if (!response.ok) {
+        status = response.status;
         throw new Error(`Status Code is ${response.status}`);
       }
       setMessage('登録したメールアドレス宛に本人確認のリンクを送信しました。');
     } catch (error) {
       console.error(error);
-      showErrorMessage('ユーザ登録に失敗しました');
+      if (status === 400) {
+        showErrorMessage('入力されたメールアドレスは既に登録されています');
+      } else {
+        showErrorMessage('ユーザ登録に失敗しました');
+      }
       return;
     } finally {
       setLoading(false);
