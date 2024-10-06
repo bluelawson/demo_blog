@@ -61,7 +61,6 @@ const Account = () => {
       setMessage(
         '変更前・変更後のメールアドレス宛に本人確認のリンクを送信しました。',
       );
-      router.push('/dashboard/account');
     } catch (error) {
       console.error(error);
       if (status === 400) {
