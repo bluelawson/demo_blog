@@ -106,7 +106,6 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
         throw new Error(`Status Code is ${response.status}`);
       }
       showSnackbarMessage('更新が完了しました！');
-      router.push(`/dashboard/articles`);
     } catch (error) {
       console.error(error);
       showErrorMessage('更新に失敗しました');
