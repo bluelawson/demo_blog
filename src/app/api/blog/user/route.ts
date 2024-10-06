@@ -89,7 +89,31 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     const supabase = createClient();
+    const adminSupabase = createAdminClient();
     const { email } = await req.json();
+
+    // メールアドレスの重複チェック
+    const { data: users, error: fetchError } =
+      await adminSupabase.auth.admin.listUsers();
+
+    if (fetchError) {
+      console.error('Error fetching users:', fetchError);
+      return NextResponse.json(
+        { error: 'Failed to fetch user data' },
+        { status: 500 },
+      );
+    }
+
+    // メールアドレスが既に登録されているか確認
+    const existingUser = users.users.find((user: any) => user.email === email);
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'This email is already registered.' },
+        { status: 400 },
+      );
+    }
+
     const { error } = await supabase.auth.updateUser({
       email: email,
     });

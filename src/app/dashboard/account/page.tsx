@@ -43,6 +43,7 @@ const Account = () => {
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    let status = 200;
     try {
       const response = await fetch(`${API_URL}/api/blog/user`, {
         method: 'PUT',
@@ -54,6 +55,7 @@ const Account = () => {
         }),
       });
       if (!response.ok) {
+        status = response.status;
         throw new Error(`Status Code is ${response.status}`);
       }
       setMessage(
@@ -62,7 +64,11 @@ const Account = () => {
       router.push('/dashboard/account');
     } catch (error) {
       console.error(error);
-      showErrorMessage('更新に失敗しました');
+      if (status === 400) {
+        showErrorMessage('入力されたメールアドレスは既に登録されています');
+      } else {
+        showErrorMessage('更新に失敗しました');
+      }
       return;
     } finally {
       setLoading(false);
