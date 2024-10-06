@@ -63,6 +63,10 @@ const ArticleManagement = () => {
   };
 
   const handleDelete = async () => {
+    if (selectedArticles.length === 0) {
+      window.confirm('記事が選択されていません');
+      return;
+    }
     const confirmed = window.confirm('本当に記事を削除しますか？');
     if (!confirmed) {
       return;
