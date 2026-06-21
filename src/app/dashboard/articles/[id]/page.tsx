@@ -14,8 +14,9 @@ import Loading from '@/components/Loading';
 import { useMessage } from '@/context/MessageContext';
 import { API_URL } from '@/utils/constants';
 
-const EditArticle = ({ params }: { params: { id: string } }) => {
+const EditArticle = ({ params }: { params: Promise<{ id: string }> }) => {
   const router = useRouter();
+  const { id } = React.use(params);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -26,7 +27,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
   const fetchArticle = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
+      const response = await fetch(`${API_URL}/api/blog/posts/${id}`, {
         next: {
           revalidate: 10,
         },
@@ -49,7 +50,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
     } finally {
       setLoading(false);
     }
-  }, [params.id, showErrorMessage]);
+  }, [id, showErrorMessage]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,9 +89,8 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
       }
     }
 
-    const id = params.id;
     try {
-      const response = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
+      const response = await fetch(`${API_URL}/api/blog/posts/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ const EditArticle = ({ params }: { params: { id: string } }) => {
     }
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
+      const response = await fetch(`${API_URL}/api/blog/posts/${id}`, {
         method: 'DELETE',
       });
       if (response.ok) {
