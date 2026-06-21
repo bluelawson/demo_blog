@@ -3,14 +3,19 @@ import React from 'react';
 
 import { API_URL } from '@/utils/constants';
 
-const Article = async ({ params }: { params: { id: string } }) => {
+const Article = async ({
+  params,
+}: {
+  params: Promise<{ id: string }> | { id: string };
+}) => {
   let detailArticle: {
     title: string;
     content: string;
     imageUrl?: string;
   } | null = null;
   try {
-    const response = await fetch(`${API_URL}/api/blog/posts/${params.id}`, {
+    const { id } = (await params) as { id: string };
+    const response = await fetch(`${API_URL}/api/blog/posts/${id}`, {
       next: {
         revalidate: 10,
       },
