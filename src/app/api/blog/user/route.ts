@@ -6,7 +6,7 @@ import { createClient, createAdminClient } from '@/utils/supabase/server';
 // ユーザ情報取得処理
 export async function GET() {
   // Supabase にクッキーから取得したトークンを渡してユーザーを取得
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
     error,
@@ -28,8 +28,8 @@ export async function GET() {
 // ユーザ新規登録処理
 export async function POST(req: Request) {
   try {
-    const supabase = createClient();
-    const adminSupabase = createAdminClient();
+    const supabase = await createClient();
+    const adminSupabase = await createAdminClient();
     const { email, password, userName } = await req.json();
 
     // メールアドレスの重複チェック
@@ -88,8 +88,8 @@ export async function POST(req: Request) {
 // メールアドレス変更処理
 export async function PUT(req: Request) {
   try {
-    const supabase = createClient();
-    const adminSupabase = createAdminClient();
+    const supabase = await createClient();
+    const adminSupabase = await createAdminClient();
     const { email } = await req.json();
 
     // メールアドレスの重複チェック
@@ -145,8 +145,8 @@ export async function PUT(req: Request) {
 
 export async function DELETE() {
   try {
-    const adminSupabase = createAdminClient();
-    const supabase = createClient();
+    const adminSupabase = await createAdminClient();
+    const supabase = await createClient();
     const {
       data: { user },
       error,

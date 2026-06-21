@@ -5,7 +5,7 @@ import { createClient } from '@/utils/supabase/server';
 // POST リクエスト処理
 export async function POST(req: NextRequest) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const formData = await req.formData();
     const file = formData.get('file') as Blob | null;
     const fileName = formData.get('fileName') as string;

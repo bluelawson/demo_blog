@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
 export async function GET(req: NextRequest) {
-  const supabase = createClient();
+  const supabase = await createClient();
   let query = supabase.from('posts').select('*');
 
   const isFilteredByCurrentUser = req.nextUrl.searchParams.get(
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { title, content, imageUrl } = await req.json();
   const {
     data: { user },
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { selectedArticles: ids } = await req.json();
 
   const { error: deleteError } = await supabase

@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
 export async function GET(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const id = req.url.split('/blog/posts/')[1];
 
   const { data, error } = await supabase
@@ -20,7 +20,7 @@ export async function GET(req: Request) {
 }
 
 export async function PUT(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const id = req.url.split('/blog/posts/')[1];
 
   // リクエストボディから更新するデータを取得
@@ -40,7 +40,7 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const id = req.url.split('/blog/posts/')[1];
 
   const { error: deleteError } = await supabase

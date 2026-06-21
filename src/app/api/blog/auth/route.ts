@@ -7,7 +7,7 @@ import { createClient } from '@/utils/supabase/server';
 
 // ユーザ登録時に送られる認証メールのリンク先
 export async function GET(request: NextRequest) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get('token_hash');
   const type = searchParams.get('type') as EmailOtpType | null;
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 // ログイン
 export async function POST(req: Request) {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { email, password } = await req.json();
     const {
       data: { session },
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
 
 // ログアウト
 export async function DELETE() {
-  const supabase = createClient();
+  const supabase = await createClient();
   // Supabaseでのサインアウト処理
   const { error } = await supabase.auth.signOut();
 
