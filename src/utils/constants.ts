@@ -6,6 +6,4 @@ export const sidebarMenus: Menu[] = [
   { id: 3, name: 'アカウント設定', link: '/dashboard/account' },
 ];
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? '';
-
-export const API_URL: string = typeof window === 'undefined' ? apiBaseUrl : '';
+export const API_URL: string = process.env.NEXT_PUBLIC_API_URL!;
