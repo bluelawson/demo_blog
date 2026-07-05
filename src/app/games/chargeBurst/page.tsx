@@ -383,38 +383,37 @@ const ChargeBurst = () => {
       enemyDamaged,
     });
 
-    setPlayerHp(nextPlayerHp);
     setPlayerEnergy(nextPlayerEnergy);
-    setEnemyHp(nextEnemyHp);
     setEnemyEnergy(nextEnemyEnergy);
     setMessage(
       `あなた: ${actionLabels[playerAction]} / 敵: ${actionLabels[enemyAction]}`,
     );
 
-    if (nextEnemyHp <= 0) {
-      setIsGameOver(true);
-      stopBgm();
-      void turnSoundsPromise.then(() => {
+    void turnSoundsPromise.then(() => {
+      setPlayerHp(nextPlayerHp);
+      setEnemyHp(nextEnemyHp);
+
+      if (nextEnemyHp <= 0) {
+        setIsGameOver(true);
+        stopBgm();
         setTimeout(() => {
           window.confirm('勝利しました');
           resetGame();
           setIsStarted(false);
         }, 0);
-      });
-      return;
-    }
+        return;
+      }
 
-    if (nextPlayerHp <= 0) {
-      setIsGameOver(true);
-      stopBgm();
-      void turnSoundsPromise.then(() => {
+      if (nextPlayerHp <= 0) {
+        setIsGameOver(true);
+        stopBgm();
         setTimeout(() => {
           window.alert('敗北しました。');
           setMessage('敗北しました。');
           setShowRetry(true);
         }, 0);
-      });
-    }
+      }
+    });
   };
 
   useEffect(() => {
