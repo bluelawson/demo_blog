@@ -123,12 +123,14 @@ const decideEnemyAction = ({
 };
 
 const ChargeBurst = () => {
+  const [isStarted, setIsStarted] = useState(false);
   const [playerHp, setPlayerHp] = useState(MAX_POINTS);
   const [playerEnergy, setPlayerEnergy] = useState(0);
   const [enemyHp, setEnemyHp] = useState(MAX_POINTS);
   const [enemyEnergy, setEnemyEnergy] = useState(0);
   const [message, setMessage] = useState('技を選んでください');
   const [isGameOver, setIsGameOver] = useState(false);
+  const [showRetry, setShowRetry] = useState(false);
 
   const resetGame = () => {
     setPlayerHp(MAX_POINTS);
@@ -137,10 +139,20 @@ const ChargeBurst = () => {
     setEnemyEnergy(0);
     setMessage('技を選んでください');
     setIsGameOver(false);
+    setShowRetry(false);
+  };
+
+  const startGame = () => {
+    resetGame();
+    setIsStarted(true);
   };
 
   const handleAction = (playerAction: Action) => {
-    if (isGameOver || (playerAction === 'burst' && playerEnergy === 0)) {
+    if (
+      !isStarted ||
+      isGameOver ||
+      (playerAction === 'burst' && playerEnergy === 0)
+    ) {
       return;
     }
 
@@ -193,6 +205,7 @@ const ChargeBurst = () => {
       setTimeout(() => {
         window.confirm('勝利しました');
         resetGame();
+        setIsStarted(false);
       }, 0);
       return;
     }
@@ -200,9 +213,9 @@ const ChargeBurst = () => {
     if (nextPlayerHp <= 0) {
       setIsGameOver(true);
       setTimeout(() => {
-        if (window.confirm('敗北しました。再挑戦しますか？')) {
-          resetGame();
-        }
+        window.alert('敗北しました。');
+        setMessage('敗北しました。');
+        setShowRetry(true);
       }, 0);
     }
   };
@@ -213,68 +226,94 @@ const ChargeBurst = () => {
         <h1 className="my-2 text-2xl font-bold flex justify-center">
           チャージバースト
         </h1>
-        <div className="mx-auto flex flex-col w-[800px] justify-center bg-slate-600">
-          {/* enemy */}
-          <div className="mx-24 flex flex-row space-x-4 justify-end">
-            <div className="space-y-1">
-              <Gauge label="HP" points={enemyHp} fillClassName="bg-lime-400" />
-              <Gauge
-                label="ENERGY"
-                points={enemyEnergy}
-                fillClassName="bg-amber-500"
+        {!isStarted ? (
+          <div className="mx-auto flex min-h-[360px] w-[800px] flex-col items-center justify-center bg-slate-600">
+            <p className="mb-4 text-lg font-bold">ゲーム開始しますか？</p>
+            <button
+              type="button"
+              className="border px-5 py-2 hover:bg-slate-500"
+              onClick={startGame}
+            >
+              開始
+            </button>
+          </div>
+        ) : (
+          <div className="mx-auto flex flex-col w-[800px] justify-center bg-slate-600">
+            {/* enemy */}
+            <div className="mx-24 flex flex-row space-x-4 justify-end">
+              <div className="space-y-1">
+                <Gauge
+                  label="HP"
+                  points={enemyHp}
+                  fillClassName="bg-lime-400"
+                />
+                <Gauge
+                  label="ENERGY"
+                  points={enemyEnergy}
+                  fillClassName="bg-amber-500"
+                />
+              </div>
+              <img
+                src="/games/chargeBurst/enemy.png"
+                alt="敵キャラクター"
+                className="w-[15.0%]"
               />
             </div>
-            <img
-              src="/games/chargeBurst/enemy.png"
-              alt="敵キャラクター"
-              className="w-[15.0%]"
-            />
-          </div>
-          {/* ally */}
-          <div className="mx-24 my-8 h-[200px] flex flex-row space-x-4 items-center justify-between">
-            <div className="space-y-1">
-              <Gauge
-                label="HP"
-                points={playerHp}
-                fillClassName="bg-lime-400"
-              />
-              <Gauge
-                label="ENERGY"
-                points={playerEnergy}
-                fillClassName="bg-amber-500"
-              />
+            {/* ally */}
+            <div className="mx-24 my-8 h-[200px] flex flex-row space-x-4 items-center justify-between">
+              <div className="space-y-1">
+                <Gauge
+                  label="HP"
+                  points={playerHp}
+                  fillClassName="bg-lime-400"
+                />
+                <Gauge
+                  label="ENERGY"
+                  points={playerEnergy}
+                  fillClassName="bg-amber-500"
+                />
+              </div>
+              <div className="mt-8 px-2 py-1 w-36 border">
+                <button
+                  type="button"
+                  className={actionButtonClass}
+                  disabled={isGameOver}
+                  onClick={() => handleAction('charge')}
+                >
+                  チャージ
+                </button>
+                <button
+                  type="button"
+                  className={actionButtonClass}
+                  disabled={isGameOver}
+                  onClick={() => handleAction('barrier')}
+                >
+                  バリア
+                </button>
+                <button
+                  type="button"
+                  className={actionButtonClass}
+                  disabled={playerEnergy === 0 || isGameOver}
+                  onClick={() => handleAction('burst')}
+                >
+                  バースト
+                </button>
+              </div>
             </div>
-            <div className="mt-8 px-2 py-1 w-36 border">
-              <button
-                type="button"
-                className={actionButtonClass}
-                disabled={isGameOver}
-                onClick={() => handleAction('charge')}
-              >
-                チャージ
-              </button>
-              <button
-                type="button"
-                className={actionButtonClass}
-                disabled={isGameOver}
-                onClick={() => handleAction('barrier')}
-              >
-                バリア
-              </button>
-              <button
-                type="button"
-                className={actionButtonClass}
-                disabled={playerEnergy === 0 || isGameOver}
-                onClick={() => handleAction('burst')}
-              >
-                バースト
-              </button>
+            <div className="mx-24 mb-6 border-t border-slate-500 pt-3 text-sm">
+              {message}
+              {showRetry && (
+                <button
+                  type="button"
+                  className="mt-3 block border px-4 py-1 hover:bg-slate-500"
+                  onClick={startGame}
+                >
+                  リトライ
+                </button>
+              )}
             </div>
           </div>
-          <div className="mx-24 mb-6 border-t border-slate-500 pt-3 text-sm">
-            {message}
-          </div>
-        </div>
+        )}
       </div>
     </>
   );
