@@ -26,13 +26,20 @@ type GaugeProps = {
   points: number;
   maxPoints?: number;
   fillClassName: string;
+  isBlinking?: boolean;
 };
 
-const Gauge = ({ label, points, maxPoints = 5, fillClassName }: GaugeProps) => {
+const Gauge = ({
+  label,
+  points,
+  maxPoints = 5,
+  fillClassName,
+  isBlinking = false,
+}: GaugeProps) => {
   const filledPoints = Math.max(0, Math.min(points, maxPoints));
 
   return (
-    <div>
+    <div className={isBlinking ? 'damage-blink' : ''}>
       <span className="text-sm">{label}</span>
       <div className="flex w-24 gap-0.5">
         {Array.from({ length: maxPoints }, (_, index) => (
@@ -145,6 +152,8 @@ const ChargeBurst = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [showRetry, setShowRetry] = useState(false);
   const [isResolvingTurn, setIsResolvingTurn] = useState(false);
+  const [isPlayerHpBlinking, setIsPlayerHpBlinking] = useState(false);
+  const [isEnemyHpBlinking, setIsEnemyHpBlinking] = useState(false);
 
   const stopBgm = () => {
     const bgm = bgmRef.current;
@@ -265,11 +274,13 @@ const ChargeBurst = () => {
   const playTurnSounds = async ({
     playerAction,
     enemyAction,
-    hasDamage,
+    playerDamaged,
+    enemyDamaged,
   }: {
     playerAction: Action;
     enemyAction: Action;
-    hasDamage: boolean;
+    playerDamaged: boolean;
+    enemyDamaged: boolean;
   }) => {
     isResolvingTurnRef.current = true;
     setIsResolvingTurn(true);
@@ -277,8 +288,13 @@ const ChargeBurst = () => {
     await playActionSound(playerAction);
     await playActionSound(enemyAction);
 
-    if (hasDamage) {
+    if (playerDamaged || enemyDamaged) {
+      setIsPlayerHpBlinking(playerDamaged);
+      setIsEnemyHpBlinking(enemyDamaged);
+      await new Promise((resolve) => requestAnimationFrame(resolve));
       await playSound(getDamageSound());
+      setIsPlayerHpBlinking(false);
+      setIsEnemyHpBlinking(false);
     }
 
     isResolvingTurnRef.current = false;
@@ -294,6 +310,8 @@ const ChargeBurst = () => {
     setIsGameOver(false);
     setShowRetry(false);
     setIsResolvingTurn(false);
+    setIsPlayerHpBlinking(false);
+    setIsEnemyHpBlinking(false);
     isResolvingTurnRef.current = false;
   };
 
@@ -350,11 +368,13 @@ const ChargeBurst = () => {
       nextPlayerHp -= 1;
     }
 
-    const hasDamage = nextPlayerHp < playerHp || nextEnemyHp < enemyHp;
+    const playerDamaged = nextPlayerHp < playerHp;
+    const enemyDamaged = nextEnemyHp < enemyHp;
     const turnSoundsPromise = playTurnSounds({
       playerAction,
       enemyAction,
-      hasDamage,
+      playerDamaged,
+      enemyDamaged,
     });
 
     setPlayerHp(nextPlayerHp);
@@ -463,17 +483,19 @@ const ChargeBurst = () => {
                   label="HP"
                   points={enemyHp}
                   fillClassName="bg-lime-400"
+                  isBlinking={isEnemyHpBlinking}
                 />
                 <Gauge
                   label="ENERGY"
                   points={enemyEnergy}
                   fillClassName="bg-amber-500"
+                  isBlinking={isEnemyHpBlinking}
                 />
               </div>
               <img
                 src="/games/chargeBurst/enemy.png"
                 alt="敵キャラクター"
-                className="w-[15.0%]"
+                className={`w-[15.0%] ${isEnemyHpBlinking ? 'damage-blink' : ''}`}
               />
             </div>
             {/* ally */}
@@ -483,11 +505,13 @@ const ChargeBurst = () => {
                   label="HP"
                   points={playerHp}
                   fillClassName="bg-lime-400"
+                  isBlinking={isPlayerHpBlinking}
                 />
                 <Gauge
                   label="ENERGY"
                   points={playerEnergy}
                   fillClassName="bg-amber-500"
+                  isBlinking={isPlayerHpBlinking}
                 />
               </div>
               <div className="mt-8 px-2 py-1 w-36 border">
@@ -532,6 +556,23 @@ const ChargeBurst = () => {
           </div>
         )}
       </div>
+      <style jsx>{`
+        :global(.damage-blink) {
+          animation: damage-blink 120ms steps(1, end) infinite;
+        }
+
+        @keyframes damage-blink {
+          0%,
+          49% {
+            opacity: 1;
+          }
+
+          50%,
+          100% {
+            opacity: 0;
+          }
+        }
+      `}</style>
     </>
   );
 };
