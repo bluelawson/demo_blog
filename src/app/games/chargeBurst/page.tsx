@@ -18,6 +18,12 @@ const actionLabels: Record<Action, string> = {
   burst: 'バースト',
 };
 
+const actionSoundPaths: Record<Action, string> = {
+  charge: CHARGE_SOUND_PATH,
+  barrier: BARRIER_SOUND_PATH,
+  burst: BURST_SOUND_PATH,
+};
+
 const actionButtonClass =
   'block cursor-pointer hover:underline disabled:cursor-not-allowed disabled:text-slate-400 disabled:hover:no-underline';
 
@@ -171,11 +177,6 @@ const decideEnemyAction = ({
 
 const ChargeBurst = () => {
   const bgmRef = useRef<HTMLAudioElement | null>(null);
-  const startSoundRef = useRef<HTMLAudioElement | null>(null);
-  const chargeSoundRef = useRef<HTMLAudioElement | null>(null);
-  const barrierSoundRef = useRef<HTMLAudioElement | null>(null);
-  const burstSoundRef = useRef<HTMLAudioElement | null>(null);
-  const damageSoundRef = useRef<HTMLAudioElement | null>(null);
   const isResolvingTurnRef = useRef(false);
   const damageBlinkIntervalRef = useRef<number | null>(null);
   const [isStarted, setIsStarted] = useState(false);
@@ -228,10 +229,10 @@ const ChargeBurst = () => {
     });
   };
 
-  const playSound = (audio: HTMLAudioElement) => {
+  const playSound = (src: string) => {
     return new Promise<void>((resolve) => {
-      audio.pause();
-      audio.currentTime = 0;
+      const audio = new Audio(src);
+      audio.volume = 0.7;
 
       const cleanup = () => {
         audio.onended = null;
@@ -248,75 +249,12 @@ const ChargeBurst = () => {
     });
   };
 
-  const getStartSound = () => {
-    if (startSoundRef.current) {
-      return startSoundRef.current;
-    }
-
-    startSoundRef.current = new Audio(START_SOUND_PATH);
-    startSoundRef.current.volume = 0.7;
-
-    return startSoundRef.current;
-  };
-
-  const getChargeSound = () => {
-    if (chargeSoundRef.current) {
-      return chargeSoundRef.current;
-    }
-
-    chargeSoundRef.current = new Audio(CHARGE_SOUND_PATH);
-    chargeSoundRef.current.volume = 0.7;
-
-    return chargeSoundRef.current;
-  };
-
-  const getBarrierSound = () => {
-    if (barrierSoundRef.current) {
-      return barrierSoundRef.current;
-    }
-
-    barrierSoundRef.current = new Audio(BARRIER_SOUND_PATH);
-    barrierSoundRef.current.volume = 0.7;
-
-    return barrierSoundRef.current;
-  };
-
-  const getBurstSound = () => {
-    if (burstSoundRef.current) {
-      return burstSoundRef.current;
-    }
-
-    burstSoundRef.current = new Audio(BURST_SOUND_PATH);
-    burstSoundRef.current.volume = 0.7;
-
-    return burstSoundRef.current;
-  };
-
-  const getDamageSound = () => {
-    if (damageSoundRef.current) {
-      return damageSoundRef.current;
-    }
-
-    damageSoundRef.current = new Audio(DAMAGE_SOUND_PATH);
-    damageSoundRef.current.volume = 0.7;
-
-    return damageSoundRef.current;
-  };
-
   const playStartSound = () => {
-    return playSound(getStartSound());
+    return playSound(START_SOUND_PATH);
   };
 
   const playActionSound = (action: Action) => {
-    if (action === 'charge') {
-      return playSound(getChargeSound());
-    }
-
-    if (action === 'barrier') {
-      return playSound(getBarrierSound());
-    }
-
-    return playSound(getBurstSound());
+    return playSound(actionSoundPaths[action]);
   };
 
   const playTurnSounds = async ({
@@ -333,8 +271,10 @@ const ChargeBurst = () => {
     isResolvingTurnRef.current = true;
     setIsResolvingTurn(true);
 
-    await playActionSound(playerAction);
-    await playActionSound(enemyAction);
+    await Promise.all([
+      playActionSound(playerAction),
+      playActionSound(enemyAction),
+    ]);
 
     if (playerDamaged || enemyDamaged) {
       damageBlinkIntervalRef.current = window.setInterval(() => {
@@ -343,7 +283,7 @@ const ChargeBurst = () => {
 
       setIsPlayerHpBlinking(playerDamaged);
       setIsEnemyHpBlinking(enemyDamaged);
-      await playSound(getDamageSound());
+      await playSound(DAMAGE_SOUND_PATH);
       stopDamageBlink();
     }
 
@@ -484,41 +424,6 @@ const ChargeBurst = () => {
       if (bgm) {
         bgm.pause();
         bgm.currentTime = 0;
-      }
-
-      const startSound = startSoundRef.current;
-
-      if (startSound) {
-        startSound.pause();
-        startSound.currentTime = 0;
-      }
-
-      const chargeSound = chargeSoundRef.current;
-
-      if (chargeSound) {
-        chargeSound.pause();
-        chargeSound.currentTime = 0;
-      }
-
-      const barrierSound = barrierSoundRef.current;
-
-      if (barrierSound) {
-        barrierSound.pause();
-        barrierSound.currentTime = 0;
-      }
-
-      const burstSound = burstSoundRef.current;
-
-      if (burstSound) {
-        burstSound.pause();
-        burstSound.currentTime = 0;
-      }
-
-      const damageSound = damageSoundRef.current;
-
-      if (damageSound) {
-        damageSound.pause();
-        damageSound.currentTime = 0;
       }
 
       if (damageBlinkIntervalRef.current !== null) {
