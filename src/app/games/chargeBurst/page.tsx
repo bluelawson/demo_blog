@@ -23,12 +23,6 @@ type Action = 'charge' | 'barrier' | 'burst';
 type CharacterSide = 'enemy' | 'player';
 type EffectType = 'charge' | 'barrier' | 'burst';
 
-const actionLabels: Record<Action, string> = {
-  charge: 'チャージ',
-  barrier: 'バリア',
-  burst: 'バースト',
-};
-
 const actionSoundPaths: Record<Action, string> = {
   charge: CHARGE_SOUND_PATH,
   barrier: BARRIER_SOUND_PATH,
@@ -288,7 +282,7 @@ const ChargeBurst = () => {
   const [playerEnergy, setPlayerEnergy] = useState(0);
   const [enemyHp, setEnemyHp] = useState(MAX_POINTS);
   const [enemyEnergy, setEnemyEnergy] = useState(0);
-  const [message, setMessage] = useState('技を選んでください');
+  const [message, setMessage] = useState('');
   const [isGameOver, setIsGameOver] = useState(false);
   const [showRetry, setShowRetry] = useState(false);
   const [isResolvingTurn, setIsResolvingTurn] = useState(false);
@@ -467,7 +461,7 @@ const ChargeBurst = () => {
     setPlayerEnergy(0);
     setEnemyHp(MAX_POINTS);
     setEnemyEnergy(0);
-    setMessage('技を選んでください');
+    setMessage('');
     setIsGameOver(false);
     setShowRetry(false);
     setIsResolvingTurn(false);
@@ -560,10 +554,6 @@ const ChargeBurst = () => {
 
     setPlayerEnergy(nextPlayerEnergy);
     setEnemyEnergy(nextEnemyEnergy);
-    setMessage(
-      `あなた: ${actionLabels[playerAction]} / 敵: ${actionLabels[enemyAction]}`,
-    );
-
     void turnSoundsPromise.then(() => {
       setPlayerHp(nextPlayerHp);
       setEnemyHp(nextEnemyHp);
