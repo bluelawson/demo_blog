@@ -519,12 +519,21 @@ const ChargeBurst = () => {
     let nextEnemyHp = enemyHp;
     let nextEnemyEnergy = enemyEnergy;
 
+    const playerDamaged =
+      enemyAction === 'burst' && playerAction === 'charge';
+    const enemyDamaged =
+      playerAction === 'burst' && enemyAction === 'charge';
+
     if (playerAction === 'charge') {
-      nextPlayerEnergy = Math.min(MAX_POINTS, nextPlayerEnergy + 1);
+      nextPlayerEnergy = playerDamaged
+        ? nextPlayerEnergy
+        : Math.min(MAX_POINTS, nextPlayerEnergy + 1);
     }
 
     if (enemyAction === 'charge') {
-      nextEnemyEnergy = Math.min(MAX_POINTS, nextEnemyEnergy + 1);
+      nextEnemyEnergy = enemyDamaged
+        ? nextEnemyEnergy
+        : Math.min(MAX_POINTS, nextEnemyEnergy + 1);
     }
 
     if (playerAction === 'burst') {
@@ -543,8 +552,6 @@ const ChargeBurst = () => {
       nextPlayerHp -= 1;
     }
 
-    const playerDamaged = nextPlayerHp < playerHp;
-    const enemyDamaged = nextEnemyHp < enemyHp;
     const turnSoundsPromise = playTurnSounds({
       playerAction,
       enemyAction,
