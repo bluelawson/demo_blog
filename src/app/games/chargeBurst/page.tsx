@@ -9,6 +9,7 @@ const CHARGE_SOUND_PATH = '/games/chargeBurst/charge.mp3';
 const BARRIER_SOUND_PATH = '/games/chargeBurst/barrier.mp3';
 const BURST_SOUND_PATH = '/games/chargeBurst/burst.mp3';
 const DAMAGE_SOUND_PATH = '/games/chargeBurst/damage.mp3';
+const GAUGE_SOUND_PATH = '/games/chargeBurst/gauge.mp3';
 const CHARGE_EFFECT_PATH = '/games/chargeBurst/charge.png';
 const BARRIER_EFFECT_PATH = '/games/chargeBurst/barrier.png';
 const BURST_EFFECT_PATH = '/games/chargeBurst/burst.png';
@@ -415,6 +416,14 @@ const ChargeBurst = () => {
     }
   };
 
+  const playGaugeSound = () => {
+    const audio = new Audio(GAUGE_SOUND_PATH);
+    audio.volume = 0.7;
+    audio.play().catch(() => {
+      setMessage('効果音を再生できませんでした');
+    });
+  };
+
   const startIntroGaugeFill = () => {
     clearIntroGaugeFill();
     setIntroGaugePoints(0);
@@ -423,6 +432,7 @@ const ChargeBurst = () => {
     introGaugeIntervalRef.current = window.setInterval(() => {
       setIntroGaugePoints((currentPoints) => {
         const nextPoints = Math.min(MAX_POINTS, currentPoints + 1);
+        playGaugeSound();
 
         if (nextPoints >= MAX_POINTS) {
           clearIntroGaugeFill();
@@ -992,7 +1002,9 @@ const ChargeBurst = () => {
                 <button
                   type="button"
                   className={actionButtonClass}
-                  disabled={!isIntroGaugeFilled || isGameOver || isResolvingTurn}
+                  disabled={
+                    !isIntroGaugeFilled || isGameOver || isResolvingTurn
+                  }
                   onClick={() => handleAction('charge')}
                 >
                   チャージ
