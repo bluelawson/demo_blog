@@ -20,6 +20,9 @@ const BARRIER_EFFECT_FRAME_MS = 80;
 const BURST_EFFECT_FRAME_MS = 70;
 const CHARGE_ENERGY_GAIN_DELAY_MS = CHARGE_EFFECT_FRAME_MS * 5;
 const MP_RECOVERY_TURN_INTERVAL = 3;
+const ENEMY_INTRO_WAIT_MS = 2000;
+const ENEMY_INTRO_FADE_MS = 3000;
+const GAUGE_REVEAL_MS = 300;
 
 type Action = 'charge' | 'barrier' | 'burst';
 type CharacterSide = 'enemy' | 'player';
@@ -311,6 +314,9 @@ const ChargeBurst = () => {
   const isResolvingTurnRef = useRef(false);
   const damageBlinkIntervalRef = useRef<number | null>(null);
   const chargeEnergyTimeoutRef = useRef<number | null>(null);
+  const introBgmTimeoutRef = useRef<number | null>(null);
+  const enemyIntroWaitTimeoutRef = useRef<number | null>(null);
+  const enemyIntroFrameRef = useRef<number | null>(null);
   const effectIntervalRefs = useRef<
     Record<EffectType, Record<CharacterSide, number | null>>
   >({
@@ -344,6 +350,8 @@ const ChargeBurst = () => {
   const [isDamageBlinkVisible, setIsDamageBlinkVisible] = useState(true);
   const [isBgmEnabled, setIsBgmEnabled] = useState(true);
   const [effectFrames, setEffectFrames] = useState(initialEffectFrames);
+  const [isEnemyIntroVisible, setIsEnemyIntroVisible] = useState(false);
+  const [isIntroComplete, setIsIntroComplete] = useState(false);
 
   const stopBgm = () => {
     const bgm = bgmRef.current;
@@ -371,6 +379,27 @@ const ChargeBurst = () => {
     if (chargeEnergyTimeoutRef.current !== null) {
       window.clearTimeout(chargeEnergyTimeoutRef.current);
       chargeEnergyTimeoutRef.current = null;
+    }
+  };
+
+  const clearEnemyIntroFrame = () => {
+    if (enemyIntroFrameRef.current !== null) {
+      window.cancelAnimationFrame(enemyIntroFrameRef.current);
+      enemyIntroFrameRef.current = null;
+    }
+  };
+
+  const clearIntroBgmStart = () => {
+    if (introBgmTimeoutRef.current !== null) {
+      window.clearTimeout(introBgmTimeoutRef.current);
+      introBgmTimeoutRef.current = null;
+    }
+  };
+
+  const clearEnemyIntroWait = () => {
+    if (enemyIntroWaitTimeoutRef.current !== null) {
+      window.clearTimeout(enemyIntroWaitTimeoutRef.current);
+      enemyIntroWaitTimeoutRef.current = null;
     }
   };
 
@@ -538,6 +567,11 @@ const ChargeBurst = () => {
     setIsResolvingTurn(false);
     stopDamageBlink();
     clearChargeEnergyUpdate();
+    clearEnemyIntroFrame();
+    clearIntroBgmStart();
+    clearEnemyIntroWait();
+    setIsEnemyIntroVisible(false);
+    setIsIntroComplete(false);
     Object.keys(effectConfigs).forEach((type) => {
       clearEffect(type as EffectType, 'player');
       clearEffect(type as EffectType, 'enemy');
@@ -549,9 +583,13 @@ const ChargeBurst = () => {
     void playStartSound();
     resetGame();
     setIsStarted(true);
-    if (isBgmEnabled) {
-      playBgm();
-    }
+    enemyIntroWaitTimeoutRef.current = window.setTimeout(() => {
+      enemyIntroFrameRef.current = window.requestAnimationFrame(() => {
+        setIsEnemyIntroVisible(true);
+        enemyIntroFrameRef.current = null;
+      });
+      enemyIntroWaitTimeoutRef.current = null;
+    }, ENEMY_INTRO_WAIT_MS);
   };
 
   const toggleBgm = () => {
@@ -560,18 +598,36 @@ const ChargeBurst = () => {
     setIsBgmEnabled(nextIsEnabled);
 
     if (!nextIsEnabled) {
+      clearIntroBgmStart();
       stopBgm();
       return;
     }
 
-    if (isStarted && !isGameOver) {
+    if (isStarted && isIntroComplete && !isGameOver) {
       playBgm();
+    }
+  };
+
+  const handleEnemyIntroTransitionEnd = () => {
+    if (!isEnemyIntroVisible || isIntroComplete) {
+      return;
+    }
+
+    setIsIntroComplete(true);
+
+    if (isBgmEnabled) {
+      clearIntroBgmStart();
+      introBgmTimeoutRef.current = window.setTimeout(() => {
+        playBgm();
+        introBgmTimeoutRef.current = null;
+      }, GAUGE_REVEAL_MS);
     }
   };
 
   const handleAction = (playerAction: Action) => {
     if (
       !isStarted ||
+      !isIntroComplete ||
       isGameOver ||
       isResolvingTurnRef.current ||
       (playerAction === 'burst' && playerEnergy === 0) ||
@@ -600,10 +656,8 @@ const ChargeBurst = () => {
     let immediatePlayerEnergy = playerEnergy;
     let immediateEnemyEnergy = enemyEnergy;
 
-    const playerDamaged =
-      enemyAction === 'burst' && playerAction === 'charge';
-    const enemyDamaged =
-      playerAction === 'burst' && enemyAction === 'charge';
+    const playerDamaged = enemyAction === 'burst' && playerAction === 'charge';
+    const enemyDamaged = playerAction === 'burst' && enemyAction === 'charge';
 
     if (playerAction === 'charge') {
       nextPlayerEnergy = playerDamaged
@@ -723,6 +777,16 @@ const ChargeBurst = () => {
         window.clearTimeout(chargeEnergyTimeoutRef.current);
       }
 
+      if (introBgmTimeoutRef.current !== null) {
+        window.clearTimeout(introBgmTimeoutRef.current);
+      }
+
+      if (enemyIntroWaitTimeoutRef.current !== null) {
+        window.clearTimeout(enemyIntroWaitTimeoutRef.current);
+      }
+
+      clearEnemyIntroFrame();
+
       Object.values(effectIntervalRefs.current).forEach((sideIntervalRefs) => {
         Object.values(sideIntervalRefs).forEach((intervalId) => {
           if (intervalId !== null) {
@@ -755,12 +819,20 @@ const ChargeBurst = () => {
           </div>
         ) : (
           <div className="mx-auto flex flex-col w-[800px] justify-center bg-slate-600">
-            <div className="mx-24 mt-3 flex justify-start">
+            <div
+              className={`mx-24 mt-3 flex justify-start ${
+                isIntroComplete ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
               <BgmToggle isEnabled={isBgmEnabled} onToggle={toggleBgm} />
             </div>
             {/* enemy */}
             <div className="mx-24 flex flex-row space-x-4 justify-end">
-              <div className="relative space-y-1">
+              <div
+                className={`relative space-y-1 ${
+                  isIntroComplete ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
                 <Gauge
                   label="HP"
                   points={enemyHp}
@@ -804,16 +876,30 @@ const ChargeBurst = () => {
                 <img
                   src="/games/chargeBurst/enemy.png"
                   alt="敵キャラクター"
-                  className={`w-full ${getBlinkClassName(
+                  onTransitionEnd={handleEnemyIntroTransitionEnd}
+                  className={`w-full ${
+                    isIntroComplete ? '' : 'transition-opacity'
+                  } ${
+                    isEnemyIntroVisible ? 'opacity-100' : 'opacity-0'
+                  } ${getBlinkClassName(
                     isEnemyHpBlinking,
                     isDamageBlinkVisible,
                   )}`}
+                  style={
+                    isIntroComplete
+                      ? undefined
+                      : { transitionDuration: `${ENEMY_INTRO_FADE_MS}ms` }
+                  }
                 />
               </div>
             </div>
             {/* ally */}
             <div className="mx-24 my-8 h-[200px] flex flex-row space-x-4 items-center justify-between">
-              <div className="relative space-y-1">
+              <div
+                className={`relative space-y-1 ${
+                  isIntroComplete ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
                 <SpriteEffect
                   frame={effectFrames.charge.player}
                   side="player"
@@ -851,11 +937,15 @@ const ChargeBurst = () => {
                   isBlinkVisible={isDamageBlinkVisible}
                 />
               </div>
-              <div className="mt-8 px-2 py-1 w-36 border">
+              <div
+                className={`mt-8 px-2 py-1 w-36 border ${
+                  isIntroComplete ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
                 <button
                   type="button"
                   className={actionButtonClass}
-                  disabled={isGameOver || isResolvingTurn}
+                  disabled={!isIntroComplete || isGameOver || isResolvingTurn}
                   onClick={() => handleAction('charge')}
                 >
                   チャージ
@@ -863,7 +953,12 @@ const ChargeBurst = () => {
                 <button
                   type="button"
                   className={actionButtonClass}
-                  disabled={playerMp === 0 || isGameOver || isResolvingTurn}
+                  disabled={
+                    !isIntroComplete ||
+                    playerMp === 0 ||
+                    isGameOver ||
+                    isResolvingTurn
+                  }
                   onClick={() => handleAction('barrier')}
                 >
                   バリア
@@ -871,7 +966,12 @@ const ChargeBurst = () => {
                 <button
                   type="button"
                   className={actionButtonClass}
-                  disabled={playerEnergy === 0 || isGameOver || isResolvingTurn}
+                  disabled={
+                    !isIntroComplete ||
+                    playerEnergy === 0 ||
+                    isGameOver ||
+                    isResolvingTurn
+                  }
                   onClick={() => handleAction('burst')}
                 >
                   バースト
