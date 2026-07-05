@@ -9,8 +9,12 @@ const CHARGE_SOUND_PATH = '/games/chargeBurst/charge.mp3';
 const BARRIER_SOUND_PATH = '/games/chargeBurst/barrier.mp3';
 const BURST_SOUND_PATH = '/games/chargeBurst/burst.mp3';
 const DAMAGE_SOUND_PATH = '/games/chargeBurst/damage.mp3';
+const BARRIER_EFFECT_PATH = '/games/chargeBurst/barrier.png';
+const BARRIER_EFFECT_FRAME_COUNT = 5;
+const BARRIER_EFFECT_FRAME_MS = 80;
 
 type Action = 'charge' | 'barrier' | 'burst';
+type CharacterSide = 'enemy' | 'player';
 
 const actionLabels: Record<Action, string> = {
   charge: 'チャージ',
@@ -44,6 +48,21 @@ type BgmToggleProps = {
   onToggle: () => void;
 };
 
+type BarrierEffectProps = {
+  frame: number | null;
+  side: CharacterSide;
+};
+
+const barrierEffectClassNames: Record<CharacterSide, string> = {
+  enemy: 'left-[45%] translate-y-[-30%] -rotate-90',
+  player: 'left-[120%] translate-y-[-65%] rotate-90',
+};
+
+const initialBarrierEffectFrames: Record<CharacterSide, number | null> = {
+  enemy: null,
+  player: null,
+};
+
 const BgmToggle = ({ isEnabled, onToggle }: BgmToggleProps) => {
   return (
     <button
@@ -65,6 +84,23 @@ const BgmToggle = ({ isEnabled, onToggle }: BgmToggleProps) => {
       </span>
       <span>{isEnabled ? 'ON' : 'OFF'}</span>
     </button>
+  );
+};
+
+const BarrierEffect = ({ frame, side }: BarrierEffectProps) => {
+  if (frame === null) {
+    return null;
+  }
+
+  return (
+    <div
+      className={`pointer-events-none absolute top-1/2 h-32 w-32 bg-no-repeat ${barrierEffectClassNames[side]}`}
+      style={{
+        backgroundImage: `url(${BARRIER_EFFECT_PATH})`,
+        backgroundSize: `${BARRIER_EFFECT_FRAME_COUNT * 100}% 100%`,
+        backgroundPosition: `${(frame / (BARRIER_EFFECT_FRAME_COUNT - 1)) * 100}% 0`,
+      }}
+    />
   );
 };
 
@@ -179,6 +215,12 @@ const ChargeBurst = () => {
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const isResolvingTurnRef = useRef(false);
   const damageBlinkIntervalRef = useRef<number | null>(null);
+  const barrierEffectIntervalRefs = useRef<
+    Record<CharacterSide, number | null>
+  >({
+    enemy: null,
+    player: null,
+  });
   const [isStarted, setIsStarted] = useState(false);
   const [playerHp, setPlayerHp] = useState(MAX_POINTS);
   const [playerEnergy, setPlayerEnergy] = useState(0);
@@ -192,6 +234,9 @@ const ChargeBurst = () => {
   const [isEnemyHpBlinking, setIsEnemyHpBlinking] = useState(false);
   const [isDamageBlinkVisible, setIsDamageBlinkVisible] = useState(true);
   const [isBgmEnabled, setIsBgmEnabled] = useState(true);
+  const [barrierEffectFrames, setBarrierEffectFrames] = useState(
+    initialBarrierEffectFrames,
+  );
 
   const stopBgm = () => {
     const bgm = bgmRef.current;
@@ -213,6 +258,55 @@ const ChargeBurst = () => {
     setIsDamageBlinkVisible(true);
     setIsPlayerHpBlinking(false);
     setIsEnemyHpBlinking(false);
+  };
+
+  const clearBarrierEffect = (target: CharacterSide) => {
+    const intervalId = barrierEffectIntervalRefs.current[target];
+
+    if (intervalId !== null) {
+      window.clearInterval(intervalId);
+      barrierEffectIntervalRefs.current[target] = null;
+    }
+
+    setBarrierEffectFrames((currentFrames) => ({
+      ...currentFrames,
+      [target]: null,
+    }));
+  };
+
+  const startBarrierEffect = (target: CharacterSide) => {
+    clearBarrierEffect(target);
+
+    setBarrierEffectFrames((currentFrames) => ({
+      ...currentFrames,
+      [target]: 0,
+    }));
+
+    barrierEffectIntervalRefs.current[target] = window.setInterval(() => {
+      setBarrierEffectFrames((currentFrames) => {
+        const currentFrame = currentFrames[target];
+        const nextFrame = currentFrame === null ? 0 : currentFrame + 1;
+
+        if (nextFrame >= BARRIER_EFFECT_FRAME_COUNT) {
+          const intervalId = barrierEffectIntervalRefs.current[target];
+
+          if (intervalId !== null) {
+            window.clearInterval(intervalId);
+            barrierEffectIntervalRefs.current[target] = null;
+          }
+
+          return {
+            ...currentFrames,
+            [target]: null,
+          };
+        }
+
+        return {
+          ...currentFrames,
+          [target]: nextFrame,
+        };
+      });
+    }, BARRIER_EFFECT_FRAME_MS);
   };
 
   const playBgm = () => {
@@ -271,6 +365,14 @@ const ChargeBurst = () => {
     isResolvingTurnRef.current = true;
     setIsResolvingTurn(true);
 
+    if (playerAction === 'barrier') {
+      startBarrierEffect('player');
+    }
+
+    if (enemyAction === 'barrier') {
+      startBarrierEffect('enemy');
+    }
+
     await Promise.all([
       playActionSound(playerAction),
       playActionSound(enemyAction),
@@ -301,6 +403,8 @@ const ChargeBurst = () => {
     setShowRetry(false);
     setIsResolvingTurn(false);
     stopDamageBlink();
+    clearBarrierEffect('player');
+    clearBarrierEffect('enemy');
     isResolvingTurnRef.current = false;
   };
 
@@ -428,6 +532,12 @@ const ChargeBurst = () => {
       if (damageBlinkIntervalRef.current !== null) {
         window.clearInterval(damageBlinkIntervalRef.current);
       }
+
+      Object.values(barrierEffectIntervalRefs.current).forEach((intervalId) => {
+        if (intervalId !== null) {
+          window.clearInterval(intervalId);
+        }
+      });
     };
   }, []);
 
@@ -458,7 +568,7 @@ const ChargeBurst = () => {
             </div>
             {/* enemy */}
             <div className="mx-24 flex flex-row space-x-4 justify-end">
-              <div className="space-y-1">
+              <div className="relative space-y-1">
                 <Gauge
                   label="HP"
                   points={enemyHp}
@@ -473,19 +583,31 @@ const ChargeBurst = () => {
                   isBlinking={isEnemyHpBlinking}
                   isBlinkVisible={isDamageBlinkVisible}
                 />
+                <div className="relative h-32 w-32">
+                  <BarrierEffect
+                    frame={barrierEffectFrames.enemy}
+                    side="enemy"
+                  />
+                </div>
               </div>
-              <img
-                src="/games/chargeBurst/enemy.png"
-                alt="敵キャラクター"
-                className={`w-[15.0%] ${getBlinkClassName(
-                  isEnemyHpBlinking,
-                  isDamageBlinkVisible,
-                )}`}
-              />
+              <div className="relative w-[15%]">
+                <img
+                  src="/games/chargeBurst/enemy.png"
+                  alt="敵キャラクター"
+                  className={`w-full ${getBlinkClassName(
+                    isEnemyHpBlinking,
+                    isDamageBlinkVisible,
+                  )}`}
+                />
+              </div>
             </div>
             {/* ally */}
             <div className="mx-24 my-8 h-[200px] flex flex-row space-x-4 items-center justify-between">
-              <div className="space-y-1">
+              <div className="relative space-y-1">
+                <BarrierEffect
+                  frame={barrierEffectFrames.player}
+                  side="player"
+                />
                 <Gauge
                   label="HP"
                   points={playerHp}
