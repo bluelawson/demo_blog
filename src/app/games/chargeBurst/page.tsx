@@ -19,6 +19,7 @@ const CHARGE_EFFECT_FRAME_MS = 60;
 const BARRIER_EFFECT_FRAME_MS = 80;
 const BURST_EFFECT_FRAME_MS = 70;
 const CHARGE_ENERGY_GAIN_DELAY_MS = CHARGE_EFFECT_FRAME_MS * 5;
+const MP_RECOVERY_TURN_INTERVAL = 3;
 
 type Action = 'charge' | 'barrier' | 'burst';
 type CharacterSide = 'enemy' | 'player';
@@ -183,7 +184,7 @@ type WeightedAction = {
   weight: number;
 };
 
-const chooseWeightedAction = (actions: WeightedAction[]) => {
+const chooseWeightedAction = (actions: WeightedAction[]): Action => {
   const totalWeight = actions.reduce((sum, item) => sum + item.weight, 0);
   let randomValue = Math.random() * totalWeight;
 
@@ -198,62 +199,109 @@ const chooseWeightedAction = (actions: WeightedAction[]) => {
   return actions[actions.length - 1].action;
 };
 
+const chooseAvailableWeightedAction = (actions: WeightedAction[]): Action => {
+  const availableActions = actions.filter((item) => item.weight > 0);
+
+  if (availableActions.length === 0) {
+    return 'charge';
+  }
+
+  return chooseWeightedAction(availableActions);
+};
+
 const decideEnemyAction = ({
   playerHp,
+  playerMp,
   playerEnergy,
   enemyHp,
   enemyEnergy,
+  enemyMp,
 }: {
   playerHp: number;
+  playerMp: number;
   playerEnergy: number;
   enemyHp: number;
   enemyEnergy: number;
+  enemyMp: number;
 }): Action => {
+  const canUseBarrier = enemyMp > 0;
+  const shouldConserveMp = enemyMp <= 1 && enemyHp > 2;
+  const playerCanBurst = playerEnergy > 0;
+
+  const getBarrierWeight = (baseWeight: number, isUrgent = false) => {
+    if (!canUseBarrier) {
+      return 0;
+    }
+
+    if (isUrgent) {
+      return baseWeight + (enemyMp <= 1 ? 2 : 0);
+    }
+
+    if (shouldConserveMp) {
+      return Math.max(1, Math.floor(baseWeight / 2));
+    }
+
+    return baseWeight;
+  };
+
   if (enemyEnergy === 0) {
     if (playerEnergy === 0) {
       return 'charge';
     }
 
-    return chooseWeightedAction([
-      { action: 'barrier', weight: 7 },
-      { action: 'charge', weight: 3 },
+    return chooseAvailableWeightedAction([
+      {
+        action: 'barrier',
+        weight: getBarrierWeight(
+          enemyHp <= 2 || playerEnergy >= 3 ? 8 : 4,
+          enemyHp <= 2 || playerEnergy >= 3,
+        ),
+      },
+      { action: 'charge', weight: enemyHp <= 2 ? 2 : 5 },
     ]);
   }
 
-  if (playerHp === 1) {
-    return chooseWeightedAction([
-      { action: 'burst', weight: 6 },
-      { action: 'barrier', weight: 3 },
+  if (enemyHp === 1 && playerCanBurst) {
+    return chooseAvailableWeightedAction([
+      { action: 'barrier', weight: getBarrierWeight(9, true) },
+      { action: 'burst', weight: playerHp === 1 ? 6 : 2 },
       { action: 'charge', weight: 1 },
     ]);
   }
 
-  if (enemyHp === 1 && playerEnergy > 0) {
-    return chooseWeightedAction([
-      { action: 'barrier', weight: 7 },
-      { action: 'burst', weight: 2 },
+  if (playerHp === 1) {
+    return chooseAvailableWeightedAction([
+      { action: 'burst', weight: 8 },
+      {
+        action: 'barrier',
+        weight: getBarrierWeight(playerCanBurst ? 4 : 1, playerCanBurst),
+      },
       { action: 'charge', weight: 1 },
     ]);
   }
 
   if (playerEnergy === 0) {
-    return chooseWeightedAction([
-      { action: enemyEnergy < MAX_POINTS ? 'charge' : 'burst', weight: 6 },
-      { action: 'burst', weight: 4 },
+    if (playerMp === 0) {
+      return 'burst';
+    }
+
+    return chooseAvailableWeightedAction([
+      { action: enemyEnergy < MAX_POINTS ? 'charge' : 'burst', weight: 4 },
+      { action: 'burst', weight: 6 },
     ]);
   }
 
   if (playerEnergy >= 3) {
-    return chooseWeightedAction([
-      { action: 'barrier', weight: 5 },
+    return chooseAvailableWeightedAction([
+      { action: 'barrier', weight: getBarrierWeight(7, true) },
       { action: 'burst', weight: 4 },
       { action: 'charge', weight: 1 },
     ]);
   }
 
-  return chooseWeightedAction([
+  return chooseAvailableWeightedAction([
     { action: 'burst', weight: 5 },
-    { action: 'barrier', weight: 4 },
+    { action: 'barrier', weight: getBarrierWeight(enemyHp <= 2 ? 5 : 3) },
     { action: 'charge', weight: 1 },
   ]);
 };
@@ -281,9 +329,12 @@ const ChargeBurst = () => {
   });
   const [isStarted, setIsStarted] = useState(false);
   const [playerHp, setPlayerHp] = useState(MAX_POINTS);
+  const [playerMp, setPlayerMp] = useState(MAX_POINTS);
   const [playerEnergy, setPlayerEnergy] = useState(0);
   const [enemyHp, setEnemyHp] = useState(MAX_POINTS);
+  const [enemyMp, setEnemyMp] = useState(MAX_POINTS);
   const [enemyEnergy, setEnemyEnergy] = useState(0);
+  const [turnCount, setTurnCount] = useState(0);
   const [message, setMessage] = useState('');
   const [isGameOver, setIsGameOver] = useState(false);
   const [showRetry, setShowRetry] = useState(false);
@@ -475,9 +526,12 @@ const ChargeBurst = () => {
 
   const resetGame = () => {
     setPlayerHp(MAX_POINTS);
+    setPlayerMp(MAX_POINTS);
     setPlayerEnergy(0);
     setEnemyHp(MAX_POINTS);
+    setEnemyMp(MAX_POINTS);
     setEnemyEnergy(0);
+    setTurnCount(0);
     setMessage('');
     setIsGameOver(false);
     setShowRetry(false);
@@ -520,22 +574,29 @@ const ChargeBurst = () => {
       !isStarted ||
       isGameOver ||
       isResolvingTurnRef.current ||
-      (playerAction === 'burst' && playerEnergy === 0)
+      (playerAction === 'burst' && playerEnergy === 0) ||
+      (playerAction === 'barrier' && playerMp === 0)
     ) {
       return;
     }
 
     const enemyAction = decideEnemyAction({
       playerHp,
+      playerMp,
       playerEnergy,
       enemyHp,
       enemyEnergy,
+      enemyMp,
     });
 
     let nextPlayerHp = playerHp;
+    let nextPlayerMp = playerMp;
     let nextPlayerEnergy = playerEnergy;
     let nextEnemyHp = enemyHp;
+    let nextEnemyMp = enemyMp;
     let nextEnemyEnergy = enemyEnergy;
+    let immediatePlayerMp = playerMp;
+    let immediateEnemyMp = enemyMp;
     let immediatePlayerEnergy = playerEnergy;
     let immediateEnemyEnergy = enemyEnergy;
 
@@ -556,6 +617,16 @@ const ChargeBurst = () => {
         : Math.min(MAX_POINTS, nextEnemyEnergy + 1);
     }
 
+    if (playerAction === 'barrier') {
+      nextPlayerMp -= 1;
+      immediatePlayerMp -= 1;
+    }
+
+    if (enemyAction === 'barrier') {
+      nextEnemyMp -= 1;
+      immediateEnemyMp -= 1;
+    }
+
     if (playerAction === 'burst') {
       nextPlayerEnergy -= 1;
       immediatePlayerEnergy -= 1;
@@ -574,6 +645,13 @@ const ChargeBurst = () => {
       nextPlayerHp -= 1;
     }
 
+    const nextTurnCount = turnCount + 1;
+
+    if (nextTurnCount % MP_RECOVERY_TURN_INTERVAL === 0) {
+      nextPlayerMp = Math.min(MAX_POINTS, nextPlayerMp + 1);
+      nextEnemyMp = Math.min(MAX_POINTS, nextEnemyMp + 1);
+    }
+
     const turnSoundsPromise = playTurnSounds({
       playerAction,
       enemyAction,
@@ -586,6 +664,8 @@ const ChargeBurst = () => {
 
     setPlayerEnergy(immediatePlayerEnergy);
     setEnemyEnergy(immediateEnemyEnergy);
+    setPlayerMp(immediatePlayerMp);
+    setEnemyMp(immediateEnemyMp);
 
     if (hasDelayedEnergyGain) {
       clearChargeEnergyUpdate();
@@ -600,17 +680,17 @@ const ChargeBurst = () => {
       clearChargeEnergyUpdate();
       setPlayerEnergy(nextPlayerEnergy);
       setEnemyEnergy(nextEnemyEnergy);
+      setPlayerMp(nextPlayerMp);
+      setEnemyMp(nextEnemyMp);
       setPlayerHp(nextPlayerHp);
       setEnemyHp(nextEnemyHp);
+      setTurnCount(nextTurnCount);
 
       if (nextEnemyHp <= 0) {
         setIsGameOver(true);
         stopBgm();
-        setTimeout(() => {
-          window.confirm('勝利しました');
-          resetGame();
-          setIsStarted(false);
-        }, 0);
+        setMessage('勝利しました。');
+        setShowRetry(true);
         return;
       }
 
@@ -689,6 +769,13 @@ const ChargeBurst = () => {
                   isBlinkVisible={isDamageBlinkVisible}
                 />
                 <Gauge
+                  label="MP"
+                  points={enemyMp}
+                  fillClassName="bg-sky-400"
+                  isBlinking={isEnemyHpBlinking}
+                  isBlinkVisible={isDamageBlinkVisible}
+                />
+                <Gauge
                   label="ENERGY"
                   points={enemyEnergy}
                   fillClassName="bg-amber-500"
@@ -750,6 +837,13 @@ const ChargeBurst = () => {
                   isBlinkVisible={isDamageBlinkVisible}
                 />
                 <Gauge
+                  label="MP"
+                  points={playerMp}
+                  fillClassName="bg-sky-400"
+                  isBlinking={isPlayerHpBlinking}
+                  isBlinkVisible={isDamageBlinkVisible}
+                />
+                <Gauge
                   label="ENERGY"
                   points={playerEnergy}
                   fillClassName="bg-amber-500"
@@ -769,7 +863,7 @@ const ChargeBurst = () => {
                 <button
                   type="button"
                   className={actionButtonClass}
-                  disabled={isGameOver || isResolvingTurn}
+                  disabled={playerMp === 0 || isGameOver || isResolvingTurn}
                   onClick={() => handleAction('barrier')}
                 >
                   バリア
