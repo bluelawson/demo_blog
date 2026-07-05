@@ -33,6 +33,35 @@ type GaugeProps = {
   isBlinkVisible?: boolean;
 };
 
+type BgmToggleProps = {
+  isEnabled: boolean;
+  onToggle: () => void;
+};
+
+const BgmToggle = ({ isEnabled, onToggle }: BgmToggleProps) => {
+  return (
+    <button
+      type="button"
+      className="flex items-center gap-2 text-sm"
+      onClick={onToggle}
+    >
+      <span>BGM</span>
+      <span
+        className={`relative inline-block h-5 w-10 shrink-0 border ${
+          isEnabled ? 'bg-amber-500' : 'bg-slate-700'
+        }`}
+      >
+        <span
+          className={`absolute left-0.5 top-0.5 h-4 w-4 bg-white transition-transform ${
+            isEnabled ? 'translate-x-[18px]' : 'translate-x-0'
+          }`}
+        />
+      </span>
+      <span>{isEnabled ? 'ON' : 'OFF'}</span>
+    </button>
+  );
+};
+
 const Gauge = ({
   label,
   points,
@@ -161,6 +190,7 @@ const ChargeBurst = () => {
   const [isPlayerHpBlinking, setIsPlayerHpBlinking] = useState(false);
   const [isEnemyHpBlinking, setIsEnemyHpBlinking] = useState(false);
   const [isDamageBlinkVisible, setIsDamageBlinkVisible] = useState(true);
+  const [isBgmEnabled, setIsBgmEnabled] = useState(true);
 
   const stopBgm = () => {
     const bgm = bgmRef.current;
@@ -338,7 +368,24 @@ const ChargeBurst = () => {
     void playStartSound();
     resetGame();
     setIsStarted(true);
-    playBgm();
+    if (isBgmEnabled) {
+      playBgm();
+    }
+  };
+
+  const toggleBgm = () => {
+    const nextIsEnabled = !isBgmEnabled;
+
+    setIsBgmEnabled(nextIsEnabled);
+
+    if (!nextIsEnabled) {
+      stopBgm();
+      return;
+    }
+
+    if (isStarted && !isGameOver) {
+      playBgm();
+    }
   };
 
   const handleAction = (playerAction: Action) => {
@@ -482,7 +529,7 @@ const ChargeBurst = () => {
 
   return (
     <>
-      <div className="my-6 mx-4 px-3 border h-[calc(100vh-200px)]">
+      <div className="my-6 mx-4 px-3 space-y-4 border h-[calc(100vh-200px)]">
         <h1 className="my-2 text-2xl font-bold flex justify-center">
           チャージバースト
         </h1>
@@ -496,9 +543,15 @@ const ChargeBurst = () => {
             >
               開始
             </button>
+            <div className="mt-12">
+              <BgmToggle isEnabled={isBgmEnabled} onToggle={toggleBgm} />
+            </div>
           </div>
         ) : (
           <div className="mx-auto flex flex-col w-[800px] justify-center bg-slate-600">
+            <div className="mx-24 mt-3 flex justify-start">
+              <BgmToggle isEnabled={isBgmEnabled} onToggle={toggleBgm} />
+            </div>
             {/* enemy */}
             <div className="mx-24 flex flex-row space-x-4 justify-end">
               <div className="space-y-1">
