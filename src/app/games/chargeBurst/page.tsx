@@ -788,11 +788,8 @@ const ChargeBurst = () => {
       if (nextPlayerHp <= 0) {
         setIsGameOver(true);
         stopBgm();
-        setTimeout(() => {
-          window.alert('敗北しました。');
-          setMessage('敗北しました。');
-          setShowRetry(true);
-        }, 0);
+        setMessage('敗北しました。');
+        setShowRetry(true);
       }
     });
   };
