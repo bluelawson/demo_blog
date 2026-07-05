@@ -21,12 +21,16 @@ const actionLabels: Record<Action, string> = {
 const actionButtonClass =
   'block cursor-pointer hover:underline disabled:cursor-not-allowed disabled:text-slate-400 disabled:hover:no-underline';
 
+const getBlinkClassName = (isBlinking: boolean, isVisible: boolean) =>
+  isBlinking && !isVisible ? 'opacity-0' : '';
+
 type GaugeProps = {
   label: string;
   points: number;
   maxPoints?: number;
   fillClassName: string;
   isBlinking?: boolean;
+  isBlinkVisible?: boolean;
 };
 
 const Gauge = ({
@@ -35,11 +39,12 @@ const Gauge = ({
   maxPoints = 5,
   fillClassName,
   isBlinking = false,
+  isBlinkVisible = true,
 }: GaugeProps) => {
   const filledPoints = Math.max(0, Math.min(points, maxPoints));
 
   return (
-    <div className={isBlinking ? 'damage-blink' : ''}>
+    <div className={getBlinkClassName(isBlinking, isBlinkVisible)}>
       <span className="text-sm">{label}</span>
       <div className="flex w-24 gap-0.5">
         {Array.from({ length: maxPoints }, (_, index) => (
@@ -143,6 +148,7 @@ const ChargeBurst = () => {
   const burstSoundRef = useRef<HTMLAudioElement | null>(null);
   const damageSoundRef = useRef<HTMLAudioElement | null>(null);
   const isResolvingTurnRef = useRef(false);
+  const damageBlinkIntervalRef = useRef<number | null>(null);
   const [isStarted, setIsStarted] = useState(false);
   const [playerHp, setPlayerHp] = useState(MAX_POINTS);
   const [playerEnergy, setPlayerEnergy] = useState(0);
@@ -154,6 +160,7 @@ const ChargeBurst = () => {
   const [isResolvingTurn, setIsResolvingTurn] = useState(false);
   const [isPlayerHpBlinking, setIsPlayerHpBlinking] = useState(false);
   const [isEnemyHpBlinking, setIsEnemyHpBlinking] = useState(false);
+  const [isDamageBlinkVisible, setIsDamageBlinkVisible] = useState(true);
 
   const stopBgm = () => {
     const bgm = bgmRef.current;
@@ -164,6 +171,17 @@ const ChargeBurst = () => {
 
     bgm.pause();
     bgm.currentTime = 0;
+  };
+
+  const stopDamageBlink = () => {
+    if (damageBlinkIntervalRef.current !== null) {
+      window.clearInterval(damageBlinkIntervalRef.current);
+      damageBlinkIntervalRef.current = null;
+    }
+
+    setIsDamageBlinkVisible(true);
+    setIsPlayerHpBlinking(false);
+    setIsEnemyHpBlinking(false);
   };
 
   const playBgm = () => {
@@ -289,12 +307,14 @@ const ChargeBurst = () => {
     await playActionSound(enemyAction);
 
     if (playerDamaged || enemyDamaged) {
+      damageBlinkIntervalRef.current = window.setInterval(() => {
+        setIsDamageBlinkVisible((current) => !current);
+      }, 120);
+
       setIsPlayerHpBlinking(playerDamaged);
       setIsEnemyHpBlinking(enemyDamaged);
-      await new Promise((resolve) => requestAnimationFrame(resolve));
       await playSound(getDamageSound());
-      setIsPlayerHpBlinking(false);
-      setIsEnemyHpBlinking(false);
+      stopDamageBlink();
     }
 
     isResolvingTurnRef.current = false;
@@ -310,8 +330,7 @@ const ChargeBurst = () => {
     setIsGameOver(false);
     setShowRetry(false);
     setIsResolvingTurn(false);
-    setIsPlayerHpBlinking(false);
-    setIsEnemyHpBlinking(false);
+    stopDamageBlink();
     isResolvingTurnRef.current = false;
   };
 
@@ -454,6 +473,10 @@ const ChargeBurst = () => {
         damageSound.pause();
         damageSound.currentTime = 0;
       }
+
+      if (damageBlinkIntervalRef.current !== null) {
+        window.clearInterval(damageBlinkIntervalRef.current);
+      }
     };
   }, []);
 
@@ -484,18 +507,23 @@ const ChargeBurst = () => {
                   points={enemyHp}
                   fillClassName="bg-lime-400"
                   isBlinking={isEnemyHpBlinking}
+                  isBlinkVisible={isDamageBlinkVisible}
                 />
                 <Gauge
                   label="ENERGY"
                   points={enemyEnergy}
                   fillClassName="bg-amber-500"
                   isBlinking={isEnemyHpBlinking}
+                  isBlinkVisible={isDamageBlinkVisible}
                 />
               </div>
               <img
                 src="/games/chargeBurst/enemy.png"
                 alt="敵キャラクター"
-                className={`w-[15.0%] ${isEnemyHpBlinking ? 'damage-blink' : ''}`}
+                className={`w-[15.0%] ${getBlinkClassName(
+                  isEnemyHpBlinking,
+                  isDamageBlinkVisible,
+                )}`}
               />
             </div>
             {/* ally */}
@@ -506,12 +534,14 @@ const ChargeBurst = () => {
                   points={playerHp}
                   fillClassName="bg-lime-400"
                   isBlinking={isPlayerHpBlinking}
+                  isBlinkVisible={isDamageBlinkVisible}
                 />
                 <Gauge
                   label="ENERGY"
                   points={playerEnergy}
                   fillClassName="bg-amber-500"
                   isBlinking={isPlayerHpBlinking}
+                  isBlinkVisible={isDamageBlinkVisible}
                 />
               </div>
               <div className="mt-8 px-2 py-1 w-36 border">
@@ -556,23 +586,6 @@ const ChargeBurst = () => {
           </div>
         )}
       </div>
-      <style jsx>{`
-        :global(.damage-blink) {
-          animation: damage-blink 120ms steps(1, end) infinite;
-        }
-
-        @keyframes damage-blink {
-          0%,
-          49% {
-            opacity: 1;
-          }
-
-          50%,
-          100% {
-            opacity: 0;
-          }
-        }
-      `}</style>
     </>
   );
 };
