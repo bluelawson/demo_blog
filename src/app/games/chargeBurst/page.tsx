@@ -23,6 +23,7 @@ const MP_RECOVERY_TURN_INTERVAL = 3;
 const ENEMY_INTRO_WAIT_MS = 2000;
 const ENEMY_INTRO_FADE_MS = 3000;
 const GAUGE_REVEAL_MS = 300;
+const INTRO_GAUGE_FILL_INTERVAL_MS = 180;
 
 type Action = 'charge' | 'barrier' | 'burst';
 type CharacterSide = 'enemy' | 'player';
@@ -311,12 +312,14 @@ const decideEnemyAction = ({
 
 const ChargeBurst = () => {
   const bgmRef = useRef<HTMLAudioElement | null>(null);
+  const isBgmEnabledRef = useRef(true);
   const isResolvingTurnRef = useRef(false);
   const damageBlinkIntervalRef = useRef<number | null>(null);
   const chargeEnergyTimeoutRef = useRef<number | null>(null);
   const introBgmTimeoutRef = useRef<number | null>(null);
   const enemyIntroWaitTimeoutRef = useRef<number | null>(null);
   const enemyIntroFrameRef = useRef<number | null>(null);
+  const introGaugeIntervalRef = useRef<number | null>(null);
   const effectIntervalRefs = useRef<
     Record<EffectType, Record<CharacterSide, number | null>>
   >({
@@ -352,6 +355,8 @@ const ChargeBurst = () => {
   const [effectFrames, setEffectFrames] = useState(initialEffectFrames);
   const [isEnemyIntroVisible, setIsEnemyIntroVisible] = useState(false);
   const [isIntroComplete, setIsIntroComplete] = useState(false);
+  const [isIntroGaugeFilled, setIsIntroGaugeFilled] = useState(false);
+  const [introGaugePoints, setIntroGaugePoints] = useState(0);
 
   const stopBgm = () => {
     const bgm = bgmRef.current;
@@ -401,6 +406,40 @@ const ChargeBurst = () => {
       window.clearTimeout(enemyIntroWaitTimeoutRef.current);
       enemyIntroWaitTimeoutRef.current = null;
     }
+  };
+
+  const clearIntroGaugeFill = () => {
+    if (introGaugeIntervalRef.current !== null) {
+      window.clearInterval(introGaugeIntervalRef.current);
+      introGaugeIntervalRef.current = null;
+    }
+  };
+
+  const startIntroGaugeFill = () => {
+    clearIntroGaugeFill();
+    setIntroGaugePoints(0);
+    setIsIntroGaugeFilled(false);
+
+    introGaugeIntervalRef.current = window.setInterval(() => {
+      setIntroGaugePoints((currentPoints) => {
+        const nextPoints = Math.min(MAX_POINTS, currentPoints + 1);
+
+        if (nextPoints >= MAX_POINTS) {
+          clearIntroGaugeFill();
+          setIsIntroGaugeFilled(true);
+
+          if (isBgmEnabledRef.current) {
+            clearIntroBgmStart();
+            introBgmTimeoutRef.current = window.setTimeout(() => {
+              playBgm();
+              introBgmTimeoutRef.current = null;
+            }, GAUGE_REVEAL_MS);
+          }
+        }
+
+        return nextPoints;
+      });
+    }, INTRO_GAUGE_FILL_INTERVAL_MS);
   };
 
   const clearEffect = (type: EffectType, target: CharacterSide) => {
@@ -570,8 +609,11 @@ const ChargeBurst = () => {
     clearEnemyIntroFrame();
     clearIntroBgmStart();
     clearEnemyIntroWait();
+    clearIntroGaugeFill();
     setIsEnemyIntroVisible(false);
     setIsIntroComplete(false);
+    setIsIntroGaugeFilled(false);
+    setIntroGaugePoints(0);
     Object.keys(effectConfigs).forEach((type) => {
       clearEffect(type as EffectType, 'player');
       clearEffect(type as EffectType, 'enemy');
@@ -595,6 +637,7 @@ const ChargeBurst = () => {
   const toggleBgm = () => {
     const nextIsEnabled = !isBgmEnabled;
 
+    isBgmEnabledRef.current = nextIsEnabled;
     setIsBgmEnabled(nextIsEnabled);
 
     if (!nextIsEnabled) {
@@ -603,7 +646,7 @@ const ChargeBurst = () => {
       return;
     }
 
-    if (isStarted && isIntroComplete && !isGameOver) {
+    if (isStarted && isIntroGaugeFilled && !isGameOver) {
       playBgm();
     }
   };
@@ -613,21 +656,15 @@ const ChargeBurst = () => {
       return;
     }
 
+    setIntroGaugePoints(0);
     setIsIntroComplete(true);
-
-    if (isBgmEnabled) {
-      clearIntroBgmStart();
-      introBgmTimeoutRef.current = window.setTimeout(() => {
-        playBgm();
-        introBgmTimeoutRef.current = null;
-      }, GAUGE_REVEAL_MS);
-    }
+    startIntroGaugeFill();
   };
 
   const handleAction = (playerAction: Action) => {
     if (
       !isStarted ||
-      !isIntroComplete ||
+      !isIntroGaugeFilled ||
       isGameOver ||
       isResolvingTurnRef.current ||
       (playerAction === 'burst' && playerEnergy === 0) ||
@@ -785,6 +822,10 @@ const ChargeBurst = () => {
         window.clearTimeout(enemyIntroWaitTimeoutRef.current);
       }
 
+      if (introGaugeIntervalRef.current !== null) {
+        window.clearInterval(introGaugeIntervalRef.current);
+      }
+
       clearEnemyIntroFrame();
 
       Object.values(effectIntervalRefs.current).forEach((sideIntervalRefs) => {
@@ -796,6 +837,15 @@ const ChargeBurst = () => {
       });
     };
   }, []);
+
+  const displayedPlayerHp =
+    isIntroComplete && !isIntroGaugeFilled ? introGaugePoints : playerHp;
+  const displayedPlayerMp =
+    isIntroComplete && !isIntroGaugeFilled ? introGaugePoints : playerMp;
+  const displayedEnemyHp =
+    isIntroComplete && !isIntroGaugeFilled ? introGaugePoints : enemyHp;
+  const displayedEnemyMp =
+    isIntroComplete && !isIntroGaugeFilled ? introGaugePoints : enemyMp;
 
   return (
     <>
@@ -835,14 +885,14 @@ const ChargeBurst = () => {
               >
                 <Gauge
                   label="HP"
-                  points={enemyHp}
+                  points={displayedEnemyHp}
                   fillClassName="bg-lime-400"
                   isBlinking={isEnemyHpBlinking}
                   isBlinkVisible={isDamageBlinkVisible}
                 />
                 <Gauge
                   label="MP"
-                  points={enemyMp}
+                  points={displayedEnemyMp}
                   fillClassName="bg-sky-400"
                   isBlinking={isEnemyHpBlinking}
                   isBlinkVisible={isDamageBlinkVisible}
@@ -917,14 +967,14 @@ const ChargeBurst = () => {
                 />
                 <Gauge
                   label="HP"
-                  points={playerHp}
+                  points={displayedPlayerHp}
                   fillClassName="bg-lime-400"
                   isBlinking={isPlayerHpBlinking}
                   isBlinkVisible={isDamageBlinkVisible}
                 />
                 <Gauge
                   label="MP"
-                  points={playerMp}
+                  points={displayedPlayerMp}
                   fillClassName="bg-sky-400"
                   isBlinking={isPlayerHpBlinking}
                   isBlinkVisible={isDamageBlinkVisible}
@@ -945,7 +995,7 @@ const ChargeBurst = () => {
                 <button
                   type="button"
                   className={actionButtonClass}
-                  disabled={!isIntroComplete || isGameOver || isResolvingTurn}
+                  disabled={!isIntroGaugeFilled || isGameOver || isResolvingTurn}
                   onClick={() => handleAction('charge')}
                 >
                   チャージ
@@ -954,7 +1004,7 @@ const ChargeBurst = () => {
                   type="button"
                   className={actionButtonClass}
                   disabled={
-                    !isIntroComplete ||
+                    !isIntroGaugeFilled ||
                     playerMp === 0 ||
                     isGameOver ||
                     isResolvingTurn
@@ -967,7 +1017,7 @@ const ChargeBurst = () => {
                   type="button"
                   className={actionButtonClass}
                   disabled={
-                    !isIntroComplete ||
+                    !isIntroGaugeFilled ||
                     playerEnergy === 0 ||
                     isGameOver ||
                     isResolvingTurn
