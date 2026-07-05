@@ -1,8 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const MAX_POINTS = 5;
+const BGM_PATH = '/games/chargeBurst/bgm.mp3';
+const START_SOUND_PATH = '/games/chargeBurst/start.mp3';
+const CHARGE_SOUND_PATH = '/games/chargeBurst/charge.mp3';
+const BARRIER_SOUND_PATH = '/games/chargeBurst/barrier.mp3';
+const BURST_SOUND_PATH = '/games/chargeBurst/burst.mp3';
+const DAMAGE_SOUND_PATH = '/games/chargeBurst/damage.mp3';
 
 type Action = 'charge' | 'barrier' | 'burst';
 
@@ -123,6 +129,13 @@ const decideEnemyAction = ({
 };
 
 const ChargeBurst = () => {
+  const bgmRef = useRef<HTMLAudioElement | null>(null);
+  const startSoundRef = useRef<HTMLAudioElement | null>(null);
+  const chargeSoundRef = useRef<HTMLAudioElement | null>(null);
+  const barrierSoundRef = useRef<HTMLAudioElement | null>(null);
+  const burstSoundRef = useRef<HTMLAudioElement | null>(null);
+  const damageSoundRef = useRef<HTMLAudioElement | null>(null);
+  const isResolvingTurnRef = useRef(false);
   const [isStarted, setIsStarted] = useState(false);
   const [playerHp, setPlayerHp] = useState(MAX_POINTS);
   const [playerEnergy, setPlayerEnergy] = useState(0);
@@ -131,6 +144,146 @@ const ChargeBurst = () => {
   const [message, setMessage] = useState('技を選んでください');
   const [isGameOver, setIsGameOver] = useState(false);
   const [showRetry, setShowRetry] = useState(false);
+  const [isResolvingTurn, setIsResolvingTurn] = useState(false);
+
+  const stopBgm = () => {
+    const bgm = bgmRef.current;
+
+    if (!bgm) {
+      return;
+    }
+
+    bgm.pause();
+    bgm.currentTime = 0;
+  };
+
+  const playBgm = () => {
+    if (!bgmRef.current) {
+      bgmRef.current = new Audio(BGM_PATH);
+      bgmRef.current.loop = true;
+      bgmRef.current.volume = 0.5;
+    }
+
+    const bgm = bgmRef.current;
+    bgm.currentTime = 0;
+    bgm.play().catch(() => {
+      setMessage('BGMを再生できませんでした');
+    });
+  };
+
+  const playSound = (audio: HTMLAudioElement) => {
+    return new Promise<void>((resolve) => {
+      audio.pause();
+      audio.currentTime = 0;
+
+      const cleanup = () => {
+        audio.onended = null;
+        audio.onerror = null;
+        resolve();
+      };
+
+      audio.onended = cleanup;
+      audio.onerror = cleanup;
+      audio.play().catch(() => {
+        setMessage('効果音を再生できませんでした');
+        cleanup();
+      });
+    });
+  };
+
+  const getStartSound = () => {
+    if (startSoundRef.current) {
+      return startSoundRef.current;
+    }
+
+    startSoundRef.current = new Audio(START_SOUND_PATH);
+    startSoundRef.current.volume = 0.7;
+
+    return startSoundRef.current;
+  };
+
+  const getChargeSound = () => {
+    if (chargeSoundRef.current) {
+      return chargeSoundRef.current;
+    }
+
+    chargeSoundRef.current = new Audio(CHARGE_SOUND_PATH);
+    chargeSoundRef.current.volume = 0.7;
+
+    return chargeSoundRef.current;
+  };
+
+  const getBarrierSound = () => {
+    if (barrierSoundRef.current) {
+      return barrierSoundRef.current;
+    }
+
+    barrierSoundRef.current = new Audio(BARRIER_SOUND_PATH);
+    barrierSoundRef.current.volume = 0.7;
+
+    return barrierSoundRef.current;
+  };
+
+  const getBurstSound = () => {
+    if (burstSoundRef.current) {
+      return burstSoundRef.current;
+    }
+
+    burstSoundRef.current = new Audio(BURST_SOUND_PATH);
+    burstSoundRef.current.volume = 0.7;
+
+    return burstSoundRef.current;
+  };
+
+  const getDamageSound = () => {
+    if (damageSoundRef.current) {
+      return damageSoundRef.current;
+    }
+
+    damageSoundRef.current = new Audio(DAMAGE_SOUND_PATH);
+    damageSoundRef.current.volume = 0.7;
+
+    return damageSoundRef.current;
+  };
+
+  const playStartSound = () => {
+    return playSound(getStartSound());
+  };
+
+  const playActionSound = (action: Action) => {
+    if (action === 'charge') {
+      return playSound(getChargeSound());
+    }
+
+    if (action === 'barrier') {
+      return playSound(getBarrierSound());
+    }
+
+    return playSound(getBurstSound());
+  };
+
+  const playTurnSounds = async ({
+    playerAction,
+    enemyAction,
+    hasDamage,
+  }: {
+    playerAction: Action;
+    enemyAction: Action;
+    hasDamage: boolean;
+  }) => {
+    isResolvingTurnRef.current = true;
+    setIsResolvingTurn(true);
+
+    await playActionSound(playerAction);
+    await playActionSound(enemyAction);
+
+    if (hasDamage) {
+      await playSound(getDamageSound());
+    }
+
+    isResolvingTurnRef.current = false;
+    setIsResolvingTurn(false);
+  };
 
   const resetGame = () => {
     setPlayerHp(MAX_POINTS);
@@ -140,17 +293,22 @@ const ChargeBurst = () => {
     setMessage('技を選んでください');
     setIsGameOver(false);
     setShowRetry(false);
+    setIsResolvingTurn(false);
+    isResolvingTurnRef.current = false;
   };
 
   const startGame = () => {
+    void playStartSound();
     resetGame();
     setIsStarted(true);
+    playBgm();
   };
 
   const handleAction = (playerAction: Action) => {
     if (
       !isStarted ||
       isGameOver ||
+      isResolvingTurnRef.current ||
       (playerAction === 'burst' && playerEnergy === 0)
     ) {
       return;
@@ -192,6 +350,13 @@ const ChargeBurst = () => {
       nextPlayerHp -= 1;
     }
 
+    const hasDamage = nextPlayerHp < playerHp || nextEnemyHp < enemyHp;
+    const turnSoundsPromise = playTurnSounds({
+      playerAction,
+      enemyAction,
+      hasDamage,
+    });
+
     setPlayerHp(nextPlayerHp);
     setPlayerEnergy(nextPlayerEnergy);
     setEnemyHp(nextEnemyHp);
@@ -202,23 +367,75 @@ const ChargeBurst = () => {
 
     if (nextEnemyHp <= 0) {
       setIsGameOver(true);
-      setTimeout(() => {
-        window.confirm('勝利しました');
-        resetGame();
-        setIsStarted(false);
-      }, 0);
+      stopBgm();
+      void turnSoundsPromise.then(() => {
+        setTimeout(() => {
+          window.confirm('勝利しました');
+          resetGame();
+          setIsStarted(false);
+        }, 0);
+      });
       return;
     }
 
     if (nextPlayerHp <= 0) {
       setIsGameOver(true);
-      setTimeout(() => {
-        window.alert('敗北しました。');
-        setMessage('敗北しました。');
-        setShowRetry(true);
-      }, 0);
+      stopBgm();
+      void turnSoundsPromise.then(() => {
+        setTimeout(() => {
+          window.alert('敗北しました。');
+          setMessage('敗北しました。');
+          setShowRetry(true);
+        }, 0);
+      });
     }
   };
+
+  useEffect(() => {
+    return () => {
+      const bgm = bgmRef.current;
+
+      if (bgm) {
+        bgm.pause();
+        bgm.currentTime = 0;
+      }
+
+      const startSound = startSoundRef.current;
+
+      if (startSound) {
+        startSound.pause();
+        startSound.currentTime = 0;
+      }
+
+      const chargeSound = chargeSoundRef.current;
+
+      if (chargeSound) {
+        chargeSound.pause();
+        chargeSound.currentTime = 0;
+      }
+
+      const barrierSound = barrierSoundRef.current;
+
+      if (barrierSound) {
+        barrierSound.pause();
+        barrierSound.currentTime = 0;
+      }
+
+      const burstSound = burstSoundRef.current;
+
+      if (burstSound) {
+        burstSound.pause();
+        burstSound.currentTime = 0;
+      }
+
+      const damageSound = damageSoundRef.current;
+
+      if (damageSound) {
+        damageSound.pause();
+        damageSound.currentTime = 0;
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -277,7 +494,7 @@ const ChargeBurst = () => {
                 <button
                   type="button"
                   className={actionButtonClass}
-                  disabled={isGameOver}
+                  disabled={isGameOver || isResolvingTurn}
                   onClick={() => handleAction('charge')}
                 >
                   チャージ
@@ -285,7 +502,7 @@ const ChargeBurst = () => {
                 <button
                   type="button"
                   className={actionButtonClass}
-                  disabled={isGameOver}
+                  disabled={isGameOver || isResolvingTurn}
                   onClick={() => handleAction('barrier')}
                 >
                   バリア
@@ -293,7 +510,7 @@ const ChargeBurst = () => {
                 <button
                   type="button"
                   className={actionButtonClass}
-                  disabled={playerEnergy === 0 || isGameOver}
+                  disabled={playerEnergy === 0 || isGameOver || isResolvingTurn}
                   onClick={() => handleAction('burst')}
                 >
                   バースト
