@@ -9,16 +9,19 @@ const CHARGE_SOUND_PATH = '/games/chargeBurst/charge.mp3';
 const BARRIER_SOUND_PATH = '/games/chargeBurst/barrier.mp3';
 const BURST_SOUND_PATH = '/games/chargeBurst/burst.mp3';
 const DAMAGE_SOUND_PATH = '/games/chargeBurst/damage.mp3';
+const CHARGE_EFFECT_PATH = '/games/chargeBurst/charge.png';
 const BARRIER_EFFECT_PATH = '/games/chargeBurst/barrier.png';
 const BURST_EFFECT_PATH = '/games/chargeBurst/burst.png';
+const CHARGE_EFFECT_FRAME_COUNT = 10;
 const BARRIER_EFFECT_FRAME_COUNT = 5;
 const BURST_EFFECT_FRAME_COUNT = 7;
+const CHARGE_EFFECT_FRAME_MS = 60;
 const BARRIER_EFFECT_FRAME_MS = 80;
 const BURST_EFFECT_FRAME_MS = 70;
 
 type Action = 'charge' | 'barrier' | 'burst';
 type CharacterSide = 'enemy' | 'player';
-type EffectType = 'barrier' | 'burst';
+type EffectType = 'charge' | 'barrier' | 'burst';
 
 const actionLabels: Record<Action, string> = {
   charge: 'チャージ',
@@ -67,6 +70,15 @@ const effectConfigs: Record<
     classNames: Record<CharacterSide, string>;
   }
 > = {
+  charge: {
+    path: CHARGE_EFFECT_PATH,
+    frameCount: CHARGE_EFFECT_FRAME_COUNT,
+    frameMs: CHARGE_EFFECT_FRAME_MS,
+    classNames: {
+      enemy: 'left-[0%] translate-y-[-45%] mix-blend-screen',
+      player: 'left-[110%] translate-y-[-45%] mix-blend-screen',
+    },
+  },
   barrier: {
     path: BARRIER_EFFECT_PATH,
     frameCount: BARRIER_EFFECT_FRAME_COUNT,
@@ -96,8 +108,9 @@ const initialEffectFrames: Record<
   EffectType,
   Record<CharacterSide, number | null>
 > = {
-  barrier: initialEffectSideFrames,
-  burst: initialEffectSideFrames,
+  charge: { ...initialEffectSideFrames },
+  barrier: { ...initialEffectSideFrames },
+  burst: { ...initialEffectSideFrames },
 };
 
 const BgmToggle = ({ isEnabled, onToggle }: BgmToggleProps) => {
@@ -257,6 +270,10 @@ const ChargeBurst = () => {
   const effectIntervalRefs = useRef<
     Record<EffectType, Record<CharacterSide, number | null>>
   >({
+    charge: {
+      enemy: null,
+      player: null,
+    },
     barrier: {
       enemy: null,
       player: null,
@@ -422,21 +439,8 @@ const ChargeBurst = () => {
     isResolvingTurnRef.current = true;
     setIsResolvingTurn(true);
 
-    if (playerAction === 'barrier') {
-      startEffect('barrier', 'player');
-    }
-
-    if (playerAction === 'burst') {
-      startEffect('burst', 'player');
-    }
-
-    if (enemyAction === 'barrier') {
-      startEffect('barrier', 'enemy');
-    }
-
-    if (enemyAction === 'burst') {
-      startEffect('burst', 'enemy');
-    }
+    startEffect(playerAction, 'player');
+    startEffect(enemyAction, 'enemy');
 
     await Promise.all([
       playActionSound(playerAction),
@@ -468,10 +472,10 @@ const ChargeBurst = () => {
     setShowRetry(false);
     setIsResolvingTurn(false);
     stopDamageBlink();
-    clearEffect('barrier', 'player');
-    clearEffect('barrier', 'enemy');
-    clearEffect('burst', 'player');
-    clearEffect('burst', 'enemy');
+    Object.keys(effectConfigs).forEach((type) => {
+      clearEffect(type as EffectType, 'player');
+      clearEffect(type as EffectType, 'enemy');
+    });
     isResolvingTurnRef.current = false;
   };
 
@@ -654,6 +658,11 @@ const ChargeBurst = () => {
                 />
                 <div className="relative h-32 w-32">
                   <SpriteEffect
+                    frame={effectFrames.charge.enemy}
+                    side="enemy"
+                    type="charge"
+                  />
+                  <SpriteEffect
                     frame={effectFrames.barrier.enemy}
                     side="enemy"
                     type="barrier"
@@ -679,6 +688,11 @@ const ChargeBurst = () => {
             {/* ally */}
             <div className="mx-24 my-8 h-[200px] flex flex-row space-x-4 items-center justify-between">
               <div className="relative space-y-1">
+                <SpriteEffect
+                  frame={effectFrames.charge.player}
+                  side="player"
+                  type="charge"
+                />
                 <SpriteEffect
                   frame={effectFrames.barrier.player}
                   side="player"
