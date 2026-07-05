@@ -10,11 +10,15 @@ const BARRIER_SOUND_PATH = '/games/chargeBurst/barrier.mp3';
 const BURST_SOUND_PATH = '/games/chargeBurst/burst.mp3';
 const DAMAGE_SOUND_PATH = '/games/chargeBurst/damage.mp3';
 const BARRIER_EFFECT_PATH = '/games/chargeBurst/barrier.png';
+const BURST_EFFECT_PATH = '/games/chargeBurst/burst.png';
 const BARRIER_EFFECT_FRAME_COUNT = 5;
+const BURST_EFFECT_FRAME_COUNT = 7;
 const BARRIER_EFFECT_FRAME_MS = 80;
+const BURST_EFFECT_FRAME_MS = 70;
 
 type Action = 'charge' | 'barrier' | 'burst';
 type CharacterSide = 'enemy' | 'player';
+type EffectType = 'barrier' | 'burst';
 
 const actionLabels: Record<Action, string> = {
   charge: 'チャージ',
@@ -48,19 +52,52 @@ type BgmToggleProps = {
   onToggle: () => void;
 };
 
-type BarrierEffectProps = {
+type SpriteEffectProps = {
   frame: number | null;
   side: CharacterSide;
+  type: EffectType;
 };
 
-const barrierEffectClassNames: Record<CharacterSide, string> = {
-  enemy: 'left-[45%] translate-y-[-30%] -rotate-90',
-  player: 'left-[120%] translate-y-[-65%] rotate-90',
+const effectConfigs: Record<
+  EffectType,
+  {
+    path: string;
+    frameCount: number;
+    frameMs: number;
+    classNames: Record<CharacterSide, string>;
+  }
+> = {
+  barrier: {
+    path: BARRIER_EFFECT_PATH,
+    frameCount: BARRIER_EFFECT_FRAME_COUNT,
+    frameMs: BARRIER_EFFECT_FRAME_MS,
+    classNames: {
+      enemy: 'left-[45%] translate-y-[-30%] -rotate-90',
+      player: 'left-[120%] translate-y-[-65%] rotate-90',
+    },
+  },
+  burst: {
+    path: BURST_EFFECT_PATH,
+    frameCount: BURST_EFFECT_FRAME_COUNT,
+    frameMs: BURST_EFFECT_FRAME_MS,
+    classNames: {
+      enemy: 'right-[20%] translate-y-[-40%] -rotate-[135deg]',
+      player: 'left-[210%] translate-y-[-100%] rotate-45',
+    },
+  },
 };
 
-const initialBarrierEffectFrames: Record<CharacterSide, number | null> = {
+const initialEffectSideFrames: Record<CharacterSide, number | null> = {
   enemy: null,
   player: null,
+};
+
+const initialEffectFrames: Record<
+  EffectType,
+  Record<CharacterSide, number | null>
+> = {
+  barrier: initialEffectSideFrames,
+  burst: initialEffectSideFrames,
 };
 
 const BgmToggle = ({ isEnabled, onToggle }: BgmToggleProps) => {
@@ -87,18 +124,20 @@ const BgmToggle = ({ isEnabled, onToggle }: BgmToggleProps) => {
   );
 };
 
-const BarrierEffect = ({ frame, side }: BarrierEffectProps) => {
+const SpriteEffect = ({ frame, side, type }: SpriteEffectProps) => {
   if (frame === null) {
     return null;
   }
 
+  const config = effectConfigs[type];
+
   return (
     <div
-      className={`pointer-events-none absolute top-1/2 h-32 w-32 bg-no-repeat ${barrierEffectClassNames[side]}`}
+      className={`pointer-events-none absolute top-1/2 h-32 w-32 bg-no-repeat ${config.classNames[side]}`}
       style={{
-        backgroundImage: `url(${BARRIER_EFFECT_PATH})`,
-        backgroundSize: `${BARRIER_EFFECT_FRAME_COUNT * 100}% 100%`,
-        backgroundPosition: `${(frame / (BARRIER_EFFECT_FRAME_COUNT - 1)) * 100}% 0`,
+        backgroundImage: `url(${config.path})`,
+        backgroundSize: `${config.frameCount * 100}% 100%`,
+        backgroundPosition: `${(frame / (config.frameCount - 1)) * 100}% 0`,
       }}
     />
   );
@@ -215,11 +254,17 @@ const ChargeBurst = () => {
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const isResolvingTurnRef = useRef(false);
   const damageBlinkIntervalRef = useRef<number | null>(null);
-  const barrierEffectIntervalRefs = useRef<
-    Record<CharacterSide, number | null>
+  const effectIntervalRefs = useRef<
+    Record<EffectType, Record<CharacterSide, number | null>>
   >({
-    enemy: null,
-    player: null,
+    barrier: {
+      enemy: null,
+      player: null,
+    },
+    burst: {
+      enemy: null,
+      player: null,
+    },
   });
   const [isStarted, setIsStarted] = useState(false);
   const [playerHp, setPlayerHp] = useState(MAX_POINTS);
@@ -234,9 +279,7 @@ const ChargeBurst = () => {
   const [isEnemyHpBlinking, setIsEnemyHpBlinking] = useState(false);
   const [isDamageBlinkVisible, setIsDamageBlinkVisible] = useState(true);
   const [isBgmEnabled, setIsBgmEnabled] = useState(true);
-  const [barrierEffectFrames, setBarrierEffectFrames] = useState(
-    initialBarrierEffectFrames,
-  );
+  const [effectFrames, setEffectFrames] = useState(initialEffectFrames);
 
   const stopBgm = () => {
     const bgm = bgmRef.current;
@@ -260,53 +303,67 @@ const ChargeBurst = () => {
     setIsEnemyHpBlinking(false);
   };
 
-  const clearBarrierEffect = (target: CharacterSide) => {
-    const intervalId = barrierEffectIntervalRefs.current[target];
+  const clearEffect = (type: EffectType, target: CharacterSide) => {
+    const intervalId = effectIntervalRefs.current[type][target];
 
     if (intervalId !== null) {
       window.clearInterval(intervalId);
-      barrierEffectIntervalRefs.current[target] = null;
+      effectIntervalRefs.current[type][target] = null;
     }
 
-    setBarrierEffectFrames((currentFrames) => ({
+    setEffectFrames((currentFrames) => ({
       ...currentFrames,
-      [target]: null,
+      [type]: {
+        ...currentFrames[type],
+        [target]: null,
+      },
     }));
   };
 
-  const startBarrierEffect = (target: CharacterSide) => {
-    clearBarrierEffect(target);
+  const startEffect = (type: EffectType, target: CharacterSide) => {
+    clearEffect(type, target);
 
-    setBarrierEffectFrames((currentFrames) => ({
+    const config = effectConfigs[type];
+
+    setEffectFrames((currentFrames) => ({
       ...currentFrames,
-      [target]: 0,
+      [type]: {
+        ...currentFrames[type],
+        [target]: 0,
+      },
     }));
 
-    barrierEffectIntervalRefs.current[target] = window.setInterval(() => {
-      setBarrierEffectFrames((currentFrames) => {
-        const currentFrame = currentFrames[target];
+    effectIntervalRefs.current[type][target] = window.setInterval(() => {
+      setEffectFrames((currentFrames) => {
+        const currentFrame = currentFrames[type][target];
         const nextFrame = currentFrame === null ? 0 : currentFrame + 1;
 
-        if (nextFrame >= BARRIER_EFFECT_FRAME_COUNT) {
-          const intervalId = barrierEffectIntervalRefs.current[target];
+        if (nextFrame >= config.frameCount) {
+          const intervalId = effectIntervalRefs.current[type][target];
 
           if (intervalId !== null) {
             window.clearInterval(intervalId);
-            barrierEffectIntervalRefs.current[target] = null;
+            effectIntervalRefs.current[type][target] = null;
           }
 
           return {
             ...currentFrames,
-            [target]: null,
+            [type]: {
+              ...currentFrames[type],
+              [target]: null,
+            },
           };
         }
 
         return {
           ...currentFrames,
-          [target]: nextFrame,
+          [type]: {
+            ...currentFrames[type],
+            [target]: nextFrame,
+          },
         };
       });
-    }, BARRIER_EFFECT_FRAME_MS);
+    }, config.frameMs);
   };
 
   const playBgm = () => {
@@ -366,11 +423,19 @@ const ChargeBurst = () => {
     setIsResolvingTurn(true);
 
     if (playerAction === 'barrier') {
-      startBarrierEffect('player');
+      startEffect('barrier', 'player');
+    }
+
+    if (playerAction === 'burst') {
+      startEffect('burst', 'player');
     }
 
     if (enemyAction === 'barrier') {
-      startBarrierEffect('enemy');
+      startEffect('barrier', 'enemy');
+    }
+
+    if (enemyAction === 'burst') {
+      startEffect('burst', 'enemy');
     }
 
     await Promise.all([
@@ -403,8 +468,10 @@ const ChargeBurst = () => {
     setShowRetry(false);
     setIsResolvingTurn(false);
     stopDamageBlink();
-    clearBarrierEffect('player');
-    clearBarrierEffect('enemy');
+    clearEffect('barrier', 'player');
+    clearEffect('barrier', 'enemy');
+    clearEffect('burst', 'player');
+    clearEffect('burst', 'enemy');
     isResolvingTurnRef.current = false;
   };
 
@@ -533,10 +600,12 @@ const ChargeBurst = () => {
         window.clearInterval(damageBlinkIntervalRef.current);
       }
 
-      Object.values(barrierEffectIntervalRefs.current).forEach((intervalId) => {
-        if (intervalId !== null) {
-          window.clearInterval(intervalId);
-        }
+      Object.values(effectIntervalRefs.current).forEach((sideIntervalRefs) => {
+        Object.values(sideIntervalRefs).forEach((intervalId) => {
+          if (intervalId !== null) {
+            window.clearInterval(intervalId);
+          }
+        });
       });
     };
   }, []);
@@ -584,9 +653,15 @@ const ChargeBurst = () => {
                   isBlinkVisible={isDamageBlinkVisible}
                 />
                 <div className="relative h-32 w-32">
-                  <BarrierEffect
-                    frame={barrierEffectFrames.enemy}
+                  <SpriteEffect
+                    frame={effectFrames.barrier.enemy}
                     side="enemy"
+                    type="barrier"
+                  />
+                  <SpriteEffect
+                    frame={effectFrames.burst.enemy}
+                    side="enemy"
+                    type="burst"
                   />
                 </div>
               </div>
@@ -604,9 +679,15 @@ const ChargeBurst = () => {
             {/* ally */}
             <div className="mx-24 my-8 h-[200px] flex flex-row space-x-4 items-center justify-between">
               <div className="relative space-y-1">
-                <BarrierEffect
-                  frame={barrierEffectFrames.player}
+                <SpriteEffect
+                  frame={effectFrames.barrier.player}
                   side="player"
+                  type="barrier"
+                />
+                <SpriteEffect
+                  frame={effectFrames.burst.player}
+                  side="player"
+                  type="burst"
                 />
                 <Gauge
                   label="HP"
