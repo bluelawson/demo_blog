@@ -18,6 +18,7 @@ const BURST_EFFECT_FRAME_COUNT = 7;
 const CHARGE_EFFECT_FRAME_MS = 60;
 const BARRIER_EFFECT_FRAME_MS = 80;
 const BURST_EFFECT_FRAME_MS = 70;
+const CHARGE_ENERGY_GAIN_DELAY_MS = CHARGE_EFFECT_FRAME_MS * 5;
 
 type Action = 'charge' | 'barrier' | 'burst';
 type CharacterSide = 'enemy' | 'player';
@@ -261,6 +262,7 @@ const ChargeBurst = () => {
   const bgmRef = useRef<HTMLAudioElement | null>(null);
   const isResolvingTurnRef = useRef(false);
   const damageBlinkIntervalRef = useRef<number | null>(null);
+  const chargeEnergyTimeoutRef = useRef<number | null>(null);
   const effectIntervalRefs = useRef<
     Record<EffectType, Record<CharacterSide, number | null>>
   >({
@@ -314,6 +316,13 @@ const ChargeBurst = () => {
     setIsEnemyHpBlinking(false);
   };
 
+  const clearChargeEnergyUpdate = () => {
+    if (chargeEnergyTimeoutRef.current !== null) {
+      window.clearTimeout(chargeEnergyTimeoutRef.current);
+      chargeEnergyTimeoutRef.current = null;
+    }
+  };
+
   const clearEffect = (type: EffectType, target: CharacterSide) => {
     const intervalId = effectIntervalRefs.current[type][target];
 
@@ -336,45 +345,49 @@ const ChargeBurst = () => {
 
     const config = effectConfigs[type];
 
-    setEffectFrames((currentFrames) => ({
-      ...currentFrames,
-      [type]: {
-        ...currentFrames[type],
-        [target]: 0,
-      },
-    }));
+    return new Promise<void>((resolve) => {
+      setEffectFrames((currentFrames) => ({
+        ...currentFrames,
+        [type]: {
+          ...currentFrames[type],
+          [target]: 0,
+        },
+      }));
 
-    effectIntervalRefs.current[type][target] = window.setInterval(() => {
-      setEffectFrames((currentFrames) => {
-        const currentFrame = currentFrames[type][target];
-        const nextFrame = currentFrame === null ? 0 : currentFrame + 1;
+      effectIntervalRefs.current[type][target] = window.setInterval(() => {
+        setEffectFrames((currentFrames) => {
+          const currentFrame = currentFrames[type][target];
+          const nextFrame = currentFrame === null ? 0 : currentFrame + 1;
 
-        if (nextFrame >= config.frameCount) {
-          const intervalId = effectIntervalRefs.current[type][target];
+          if (nextFrame >= config.frameCount) {
+            const intervalId = effectIntervalRefs.current[type][target];
 
-          if (intervalId !== null) {
-            window.clearInterval(intervalId);
-            effectIntervalRefs.current[type][target] = null;
+            if (intervalId !== null) {
+              window.clearInterval(intervalId);
+              effectIntervalRefs.current[type][target] = null;
+            }
+
+            resolve();
+
+            return {
+              ...currentFrames,
+              [type]: {
+                ...currentFrames[type],
+                [target]: null,
+              },
+            };
           }
 
           return {
             ...currentFrames,
             [type]: {
               ...currentFrames[type],
-              [target]: null,
+              [target]: nextFrame,
             },
           };
-        }
-
-        return {
-          ...currentFrames,
-          [type]: {
-            ...currentFrames[type],
-            [target]: nextFrame,
-          },
-        };
-      });
-    }, config.frameMs);
+        });
+      }, config.frameMs);
+    });
   };
 
   const playBgm = () => {
@@ -433,8 +446,10 @@ const ChargeBurst = () => {
     isResolvingTurnRef.current = true;
     setIsResolvingTurn(true);
 
-    startEffect(playerAction, 'player');
-    startEffect(enemyAction, 'enemy');
+    const effectPromises = [
+      startEffect(playerAction, 'player'),
+      startEffect(enemyAction, 'enemy'),
+    ];
 
     await Promise.all([
       playActionSound(playerAction),
@@ -452,6 +467,8 @@ const ChargeBurst = () => {
       stopDamageBlink();
     }
 
+    await Promise.all(effectPromises);
+
     isResolvingTurnRef.current = false;
     setIsResolvingTurn(false);
   };
@@ -466,6 +483,7 @@ const ChargeBurst = () => {
     setShowRetry(false);
     setIsResolvingTurn(false);
     stopDamageBlink();
+    clearChargeEnergyUpdate();
     Object.keys(effectConfigs).forEach((type) => {
       clearEffect(type as EffectType, 'player');
       clearEffect(type as EffectType, 'enemy');
@@ -518,6 +536,8 @@ const ChargeBurst = () => {
     let nextPlayerEnergy = playerEnergy;
     let nextEnemyHp = enemyHp;
     let nextEnemyEnergy = enemyEnergy;
+    let immediatePlayerEnergy = playerEnergy;
+    let immediateEnemyEnergy = enemyEnergy;
 
     const playerDamaged =
       enemyAction === 'burst' && playerAction === 'charge';
@@ -538,10 +558,12 @@ const ChargeBurst = () => {
 
     if (playerAction === 'burst') {
       nextPlayerEnergy -= 1;
+      immediatePlayerEnergy -= 1;
     }
 
     if (enemyAction === 'burst') {
       nextEnemyEnergy -= 1;
+      immediateEnemyEnergy -= 1;
     }
 
     if (playerAction === 'burst' && enemyAction === 'charge') {
@@ -558,10 +580,26 @@ const ChargeBurst = () => {
       playerDamaged,
       enemyDamaged,
     });
+    const hasDelayedEnergyGain =
+      nextPlayerEnergy > immediatePlayerEnergy ||
+      nextEnemyEnergy > immediateEnemyEnergy;
 
-    setPlayerEnergy(nextPlayerEnergy);
-    setEnemyEnergy(nextEnemyEnergy);
+    setPlayerEnergy(immediatePlayerEnergy);
+    setEnemyEnergy(immediateEnemyEnergy);
+
+    if (hasDelayedEnergyGain) {
+      clearChargeEnergyUpdate();
+      chargeEnergyTimeoutRef.current = window.setTimeout(() => {
+        setPlayerEnergy(nextPlayerEnergy);
+        setEnemyEnergy(nextEnemyEnergy);
+        chargeEnergyTimeoutRef.current = null;
+      }, CHARGE_ENERGY_GAIN_DELAY_MS);
+    }
+
     void turnSoundsPromise.then(() => {
+      clearChargeEnergyUpdate();
+      setPlayerEnergy(nextPlayerEnergy);
+      setEnemyEnergy(nextEnemyEnergy);
       setPlayerHp(nextPlayerHp);
       setEnemyHp(nextEnemyHp);
 
@@ -599,6 +637,10 @@ const ChargeBurst = () => {
 
       if (damageBlinkIntervalRef.current !== null) {
         window.clearInterval(damageBlinkIntervalRef.current);
+      }
+
+      if (chargeEnergyTimeoutRef.current !== null) {
+        window.clearTimeout(chargeEnergyTimeoutRef.current);
       }
 
       Object.values(effectIntervalRefs.current).forEach((sideIntervalRefs) => {
