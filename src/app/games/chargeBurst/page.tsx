@@ -853,6 +853,11 @@ const ChargeBurst = () => {
     isIntroComplete && !isIntroGaugeFilled ? introGaugePoints : enemyHp;
   const displayedEnemyMp =
     isIntroComplete && !isIntroGaugeFilled ? introGaugePoints : enemyMp;
+  const shouldHideEnemyImage =
+    !isEnemyIntroVisible || (isEnemyHpBlinking && !isDamageBlinkVisible);
+  const enemyImageOpacityClass = shouldHideEnemyImage
+    ? 'opacity-0'
+    : 'opacity-100';
 
   return (
     <>
@@ -936,12 +941,7 @@ const ChargeBurst = () => {
                   onTransitionEnd={handleEnemyIntroTransitionEnd}
                   className={`w-full ${
                     isIntroComplete ? '' : 'transition-opacity'
-                  } ${
-                    isEnemyIntroVisible ? 'opacity-100' : 'opacity-0'
-                  } ${getBlinkClassName(
-                    isEnemyHpBlinking,
-                    isDamageBlinkVisible,
-                  )}`}
+                  } ${enemyImageOpacityClass}`}
                   style={
                     isIntroComplete
                       ? undefined
