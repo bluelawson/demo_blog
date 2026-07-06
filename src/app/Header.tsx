@@ -74,11 +74,6 @@ const Header = () => {
       <div>
         {loading && <Loading header />}
         <nav className="text-sm" hidden={loading}>
-          <NavButton
-            href="/games/chargeBurst"
-            iconClass="i-tabler-device-gamepad-2"
-            text={'ミニゲーム'}
-          />
           {user ? (
             <>
               <span className="px-3 py-3 text-xs rounded-md bg-white-300">
